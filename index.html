@@ -816,8 +816,6 @@
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
                     if (c.stunDuration === 1) {
-                        logMessage(`${c.name}의 기절이 다음 턴에 풀립니다!`, 'info');
-                    } else if (c.stunDuration === 0) {
                         logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
                     }
                 }
@@ -832,8 +830,6 @@
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
                     if (c.stunDuration === 1) {
-                        logMessage(`${c.name}의 기절이 다음 턴에 풀립니다!`, 'info');
-                    } else if (c.stunDuration === 0) {
                         logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
                     }
                 }
