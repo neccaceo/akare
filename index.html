@@ -13,27 +13,32 @@
 
         body {
             font-family: 'Noto Sans KR', Arial, sans-serif;
-            background: white;
+            background: transparent;
             min-height: 100vh;
+            padding: 0;
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow:hidden;
+            overflow: hidden;
         }
 
         #mainWrapper {
             width: 100%;
             max-width: 1400px;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
+            background: transparent;
+            padding: 10px;
         }
 
         h1, h2 {
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-align: center;
+            font-size: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
         }
 
         .hidden {
@@ -49,12 +54,12 @@
         }
 
         #battleScaleButtons button {
-            padding: 20px 40px;
-            font-size: 18px;
+            padding: 15px 30px;
+            font-size: 16px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -73,20 +78,20 @@
 
         #teamASetup, #teamBSetup {
             flex: 1;
-            padding: 20px;
-            background: white;
+            padding: 10px;
+            background: transparent;
             border: 2px solid #e9ecef;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .character-select-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 10px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             align-items: center;
         }
@@ -94,23 +99,24 @@
         .character-select-group label {
             font-weight: bold;
             color: #555;
+            font-size: 13px;
         }
 
         .character-select-group select,
         .character-select-group input {
-            padding: 10px;
+            padding: 6px;
             border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+            border-radius: 4px;
+            font-size: 13px;
         }
 
         #startGameButton {
-            padding: 15px 50px;
-            font-size: 18px;
+            padding: 12px 40px;
+            font-size: 16px;
             background: #28a745;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -120,12 +126,12 @@
         }
 
         #changeScaleButton {
-            padding: 15px 50px;
-            font-size: 18px;
+            padding: 12px 40px;
+            font-size: 16px;
             background: #6c757d;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -169,18 +175,19 @@
 
         #vsIndicator {
             text-align: center;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: #dc3545;
+            margin: 8px 0;
             flex-shrink: 0;
         }
 
         .character-card {
-            width: 180px;
-            padding: 12px;
+            width: 160px;
+            padding: 10px;
             background: white;
             border: 3px solid #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             transition: all 0.3s;
             cursor: default;
         }
@@ -194,20 +201,21 @@
         }
 
         .character-card.active {
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+            transform: scale(1.02);
             border-color: #ffd700;
-            border-width: 4px;
+            border-width: 3px;
         }
 
         .character-card.targetable {
             cursor: pointer;
             border-color: #28a745;
-            border-width: 4px;
+            border-width: 3px;
         }
 
         .character-card.targetable:hover {
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            border-color: #218838;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
         }
 
         .character-card.dead {
@@ -216,15 +224,15 @@
         }
 
         .character-card h3 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #333;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .character-card p {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #666;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .hp-container {
@@ -283,18 +291,18 @@
         /* 액션 패널 */
         #actionPanel {
             text-align: center;
-            margin: 15px 0;
+            margin: 10px 0;
             flex-shrink: 0;
         }
 
         #actionPanel button {
-            margin: 5px;
-            padding: 12px 25px;
-            font-size: 16px;
+            margin: 3px;
+            padding: 10px 20px;
+            font-size: 14px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -396,10 +404,10 @@
             flex: 1;
             min-height: 0;
             overflow-y: auto;
-            background: white;
+            background: transparent;
             border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 10px;
         }
 
         #battleLog {
@@ -407,9 +415,11 @@
         }
 
         #battleLog li {
-            padding: 4px;
-            margin-bottom: 5px;
-            border-left: 4px solid #ccc;
+            padding: 6px;
+            margin-bottom: 3px;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            font-size: 13px;
         }
 
         #battleLog li.system {
@@ -573,14 +583,14 @@
         const teamRoster = {
             "A팀": [
                 { name: "알렉스", class: "A" },
-                { name: "데이먼", class: "B" },
-                { name: "가이아", class: "C" },
+                { name: "데이먼", class: "A" },
+                { name: "가이아", class: "A" },
             ],
             "B팀": [
-                { name: "브라이언", class: "A" },
+                { name: "브라이언", class: "B" },
                 { name: "엘리나", class: "B" },
                 { name: "헥토르", class: "B" },
-                { name: "클레어", class: "A" },
+                { name: "클레어", class: "C" },
                 { name: "핀", class: "C" },
                 { name: "아이리스", class: "C" },
             ]
@@ -645,6 +655,25 @@
             return Math.floor(Math.random() * 10) + 1 +
                    Math.floor(Math.random() * 10) + 1 +
                    Math.floor(Math.random() * 10) + 1;
+        }
+
+        // 한글 조사 처리 함수
+        function getJosa(name, josaType) {
+            const lastChar = name.charCodeAt(name.length - 1);
+            const hasJongseong = (lastChar - 0xAC00) % 28 > 0;
+            
+            if (josaType === '이가') {
+                return hasJongseong ? '이' : '가';
+            } else if (josaType === '을를') {
+                return hasJongseong ? '을' : '를';
+            } else if (josaType === '은는') {
+                return hasJongseong ? '은' : '는';
+            }
+            return '';
+        }
+
+        function formatName(name, josaType) {
+            return name + getJosa(name, josaType);
         }
 
         function findCharacterById(id) {
@@ -865,7 +894,7 @@
         }
 
         function performRoundTally() {
-            logMessage("--- 턴 정산 ---", 'system');
+            logMessage(`--- ${currentTurn}턴 정산 ---`, 'system');
             const allCharacters = [...teamA, ...teamB];
 
             allCharacters.forEach(char => {
@@ -874,7 +903,7 @@
                 }
 
                 if (char.isFrozen) {
-                    logMessage(`${char.name}은(는) [체력 동결] 상태라 피해를 입지 않습니다.`, 'info');
+                    logMessage(`${formatName(char.name, '은는')} [체력 동결] 상태라 피해를 입지 않습니다.`, 'info');
                     return;
                 }
 
@@ -906,7 +935,7 @@
 
                     if (damage > 0) {
                         totalDamageTaken += damage;
-                        logMessage(`정산: ${char.name}(이)가 [공격 ${attack.roll}]를 ${logSuffix} -> ${damage}의 피해!`, 'damage');
+                        logMessage(`정산: ${formatName(char.name, '이가')} [공격 ${attack.roll}] 를 ${logSuffix} -> ${damage}의 피해!`, 'damage');
                         
                         // 반사 방패 처리
                         if (char.isReflecting) {
@@ -920,7 +949,7 @@
                                         type: 'skill_A2_reflect',
                                         attackerId: char.id 
                                     });
-                                    logMessage(`[반사 방패] ${char.name}(이)가 ${reflectTarget.name}에게 ${reflectDamage}의 피해를 반사!`, 'info');
+                                    logMessage(`[반사 방패] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
                                 }
                             }
                         }
@@ -931,7 +960,7 @@
                             if (attacker && !attacker.isDead) {
                                 const healAmount = Math.floor(damage * 1.5);
                                 attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + healAmount);
-                                logMessage(`[흡혈 공격] ${attacker.name}(이)가 ${healAmount}만큼 HP를 회복합니다!`, 'heal');
+                                logMessage(`[흡혈 공격] ${formatName(attacker.name, '이가')} ${healAmount}만큼 HP를 회복합니다!`, 'heal');
                                 updateCharacterUI(attacker);
                             }
                         }
@@ -945,11 +974,11 @@
                     if (char.currentHp <= 0) {
                         char.currentHp = 0;
                         char.isDead = true;
-                        logMessage(`${char.name}(이)가 전투 불능 상태가 되었습니다!`, 'info');
+                        logMessage(`${formatName(char.name, '이가')} 전투 불능 상태가 되었습니다!`, 'info');
                     }
                     updateCharacterUI(char);
                 } else if (char.attackRollsReceived.length > 0) {
-                    logMessage(`정산: ${char.name}(이)가 모든 피해를 방어했습니다!`, 'info');
+                    logMessage(`정산: ${formatName(char.name, '이가')} 모든 피해를 방어했습니다!`, 'info');
                 }
             });
 
@@ -1022,18 +1051,18 @@
 
             switch (action) {
                 case 'attack':
-                    logMessage(`${actor.name}(이)가 공격을 준비합니다. 대상을 선택하세요.`, teamType);
+                    logMessage(`${formatName(actor.name, '이가')} 공격을 준비합니다. 대상을 선택하세요.`, teamType);
                     setupTargeting('attack', { targetTeam: 'enemy' });
                     break;
                 case 'defend':
-                    logMessage(`${actor.name}(이)가 방어를 준비합니다. 아군(자신 포함)을 선택하세요.`, teamType);
+                    logMessage(`${formatName(actor.name, '이가')} 방어를 준비합니다. 아군(자신 포함)을 선택하세요.`, teamType);
                     setupTargeting('defend', { targetTeam: 'ally' });
                     break;
                 case 'dodge':
                     performDodge(actor, teamType);
                     break;
                 case 'wait':
-                    logMessage(`${actor.name}(이)가 대기합니다.`, teamType);
+                    logMessage(`${formatName(actor.name, '이가')} 대기합니다.`, teamType);
                     finishAction(true);
                     break;
                 case 'skill1':
@@ -1056,7 +1085,7 @@
                 case 'defend':
                     const roll = roll3d10();
                     defender.defendRoll = roll;
-                    logMessage(`${attacker.name}(이)가 ${defender.name}에게 방어(${roll})를 시전합니다.`, attackerType);
+                    logMessage(`${formatName(attacker.name, '이가')} ${formatName(defender.name, '에게')} 방어(${roll})를 시전합니다.`, attackerType);
                     finishAction(true);
                     break;
                 case 'skill1':
@@ -1073,7 +1102,7 @@
 
         function registerAttack(attacker, defender, type, fixedRoll = null) {
             const roll = fixedRoll !== null ? fixedRoll : roll3d10();
-            let logMsg = `[공격 ${roll}] (${type})`;
+            let logMsg = `[공격 ${roll}]`;
             
             if (type === 'skill_B3') logMsg = `[흡혈 공격 ${roll}]`;
             if (type === 'skill_C1') logMsg = `[관통 공격 ${roll}] (방어무시 20 포함)`;
@@ -1084,17 +1113,17 @@
                 attackerId: attacker.id 
             });
             
-            logMessage(`${attacker.name}(이)가 ${defender.name}을(를) 공격!`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${formatName(attacker.name, '이가')} ${formatName(defender.name, '을를')} 공격! ${logMsg}`, attacker.id.startsWith('A') ? 'A' : 'B');
         }
 
         function performDodge(actor, teamType) {
             const roll = roll3d10();
             if (roll >= 22) {
                 actor.isEscaped = true;
-                logMessage(`${actor.name}(이)가 도주합니다! (굴림: ${roll})`, teamType);
+                logMessage(`${formatName(actor.name, '이가')} 도주합니다! (굴림: ${roll})`, teamType);
                 updateCharacterUI(actor);
             } else {
-                logMessage(`${actor.name}(이)가 도주에 실패했습니다. (굴림: ${roll})`, teamType);
+                logMessage(`${formatName(actor.name, '이가')} 도주에 실패했습니다. (굴림: ${roll})`, teamType);
             }
             finishAction(true);
         }
@@ -1156,7 +1185,7 @@
             
             let options = '<option value="" disabled selected>캐릭터 선택</option>';
             roster.forEach((char, i) => {
-                options += `<option value="${i}">${char.name} (${char.class})</option>`;
+                options += `<option value="${i}">${char.name} (${char.class}클래스)</option>`;
             });
 
             div.innerHTML = `
@@ -1248,6 +1277,13 @@
             const buttons = panel.querySelectorAll('button[data-action]');
             const cancelBtn = document.getElementById('cancelActionButton');
             
+            // 스킬 이름 정의
+            const skillNames = {
+                'A': ['이중 행동', '반사 방패', '기절 공격'],
+                'B': ['최고치 선택', '2배 강화', '흡혈 공격'],
+                'C': ['관통 공격', '체력 동결', '45 고정']
+            };
+            
             if (show) {
                 panel.classList.remove('hidden');
                 buttons.forEach(btn => {
@@ -1255,11 +1291,13 @@
                     if (action !== 'cancel') {
                         btn.classList.remove('hidden');
                         
-                        // 스킬 버튼에 클래스별 색상 적용
+                        // 스킬 버튼에 클래스별 색상 및 이름 적용
                         if (action.startsWith('skill')) {
                             btn.classList.remove('class-A', 'class-B', 'class-C');
                             if (charClass) {
                                 btn.classList.add(`class-${charClass}`);
+                                const skillIndex = parseInt(action.replace('skill', '')) - 1;
+                                btn.textContent = skillNames[charClass][skillIndex];
                                 btn.disabled = false;
                             } else {
                                 btn.disabled = true;
