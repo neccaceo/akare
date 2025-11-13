@@ -41,6 +41,14 @@
             font-size: 24px;
         }
 
+        #teamASetup h2 {
+            color: #dc3545;
+        }
+
+        #teamBSetup h2 {
+            color: #28a745;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -82,6 +90,14 @@
             background: transparent;
             border: 2px solid #e9ecef;
             border-radius: 8px;
+        }
+
+        #teamASetup {
+            border-color: #dc3545;
+        }
+
+        #teamBSetup {
+            border-color: #28a745;
         }
 
         .character-select-group {
@@ -193,29 +209,32 @@
         }
 
         .character-card.teamA {
-            border-color: #007bff;
+            border-color: #dc3545;
+            background: #f8d7da;
         }
 
         .character-card.teamB {
-            border-color: #dc3545;
+            border-color: #28a745;
+            background: #d4edda;
         }
 
         .character-card.active {
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
             transform: scale(1.02);
             border-color: #ffd700;
             border-width: 3px;
+            background: #fff3cd;
         }
 
         .character-card.targetable {
             cursor: pointer;
-            border-color: #28a745;
+            border-color: #2835a7;
             border-width: 3px;
+            background: #d8d4ed;
         }
 
         .character-card.targetable:hover {
-            border-color: #218838;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            border-color: #2835a7;
+            background: #d8d4ed;
         }
 
         .character-card.dead {
@@ -429,13 +448,13 @@
         }
 
         #battleLog li.A {
-            background: #d1ecf1;
-            border-left-color: #0c5460;
+            background: #f8d7da;
+            border-left-color: #dc3545;
         }
 
         #battleLog li.B {
-            background: #f8d7da;
-            border-left-color: #721c24;
+            background: #d4edda;
+            border-left-color: #28a745;
         }
 
         #battleLog li.info {
@@ -796,7 +815,9 @@
                 c.isFrozen = false;
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
-                    if (c.stunDuration === 0) {
+                    if (c.stunDuration === 1) {
+                        logMessage(`${c.name}의 기절이 다음 턴에 풀립니다!`, 'info');
+                    } else if (c.stunDuration === 0) {
                         logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
                     }
                 }
@@ -810,7 +831,9 @@
                 c.isFrozen = false;
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
-                    if (c.stunDuration === 0) {
+                    if (c.stunDuration === 1) {
+                        logMessage(`${c.name}의 기절이 다음 턴에 풀립니다!`, 'info');
+                    } else if (c.stunDuration === 0) {
                         logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
                     }
                 }
@@ -835,8 +858,8 @@
             }
 
             // 기절 상태 처리
-            if (actor.stunDuration >= 1) {
-                logMessage(`${actor.name}은(는) 기절해서 행동할 수 없습니다!`, 'info');
+            if (actor.stunDuration === 2) {
+                logMessage(`${formatName(actor.name, '은는')} 기절해서 행동할 수 없습니다!`, 'info');
                 setTimeout(() => {
                     currentActorIndex++;
                     startTurn();
@@ -1163,7 +1186,6 @@
 
         // === UI 함수 ===
         function setupCharacterSelection(scale) {
-            document.getElementById('gameSetup').classList.add('hidden');
             document.getElementById('gameContainer').classList.remove('hidden');
 
             const teamASetup = document.getElementById('teamASetup');
@@ -1243,7 +1265,7 @@
             if (char.isReflecting) {
                 statusContainer.innerHTML += '<span class="status-effect status-reflect">반사</span>';
             }
-            if (char.stunDuration >= 1) {
+            if (char.stunDuration === 2) {
                 statusContainer.innerHTML += '<span class="status-effect status-stunned">기절</span>';
             }
             if (char.isFrozen) {
@@ -1390,9 +1412,8 @@
             document.getElementById('gameContainer').classList.add('hidden');
             document.getElementById('battlePanel').classList.add('hidden');
             document.getElementById('characterSetupPanel').classList.remove('hidden');
-            document.getElementById('gameSetup').classList.remove('hidden');
             document.getElementById('startGameButton').classList.remove('hidden');
-            document.getElementById('changeScaleButton').classList.remove('hidden');
+            document.getElementById('gameSetup').classList.remove('hidden');
             
             teamA = [];
             teamB = [];
@@ -1453,23 +1474,57 @@
 
         // === A 클래스 스킬 ===
         function handleSkill_A1() {
+            const actor = getCurrentActor();
+            const actorTeamId = actor.id.startsWith('A') ? 'A' : 'B';
+            
+            // 1vs1에서는 사용 불가
+            if (battleScale === 1) {
+                logMessage(`[이중 행동]은 1vs1에서 사용할 수 없습니다.`, 'info');
+                toggleActionButtons(true, actor.class);
+                return;
+            }
+            
+            // 대상 수 확인
+            const enemyTargets = (actorTeamId === 'A' ? teamB : teamA).filter(c => !c.isDead && !c.isEscaped);
+            const allyTargets = (actorTeamId === 'A' ? teamA : teamB).filter(c => !c.isDead && !c.isEscaped);
+            
+            // 공격 대상이 2명 미만이거나 아군이 2명 미만이면 사용 불가
+            if (enemyTargets.length < 2 && allyTargets.length < 2) {
+                logMessage(`[이중 행동]을 사용할 수 있는 대상이 부족합니다.`, 'info');
+                toggleActionButtons(true, actor.class);
+                return;
+            }
+            
+            const buttons = [];
+            
+            if (enemyTargets.length >= 2) {
+                buttons.push({ text: "공격 (적 2명)", handler: () => {
+                    currentAction = 'skill1';
+                    skillA1_action = 'attack';
+                    logMessage(`[이중 행동] 공격을 시전합니다. 첫 번째 대상을 선택하세요.`);
+                    setupTargeting('skill1', { targetTeam: 'enemy' });
+                }});
+            }
+            
+            if (allyTargets.length >= 2) {
+                buttons.push({ text: "방어 (아군 2명)", handler: () => {
+                    currentAction = 'skill1';
+                    skillA1_action = 'defend';
+                    logMessage(`[이중 행동] 방어를 시전합니다. 첫 번째 대상을 선택하세요.`);
+                    setupTargeting('skill1', { targetTeam: 'ally' });
+                }});
+            }
+            
+            if (buttons.length === 0) {
+                logMessage(`[이중 행동]을 사용할 수 있는 대상이 부족합니다.`, 'info');
+                toggleActionButtons(true, actor.class);
+                return;
+            }
+            
             showModal(
                 "A-1: 이중 행동",
                 "공격(적 2명) 또는 방어(아군 2명)를 선택하세요.",
-                [
-                    { text: "공격 (적 2명)", handler: () => {
-                        currentAction = 'skill1';
-                        skillA1_action = 'attack';
-                        logMessage(`[이중 행동] 공격을 시전합니다. 첫 번째 대상을 선택하세요.`);
-                        setupTargeting('skill1', { targetTeam: 'enemy' });
-                    }},
-                    { text: "방어 (아군 2명)", handler: () => {
-                        currentAction = 'skill1';
-                        skillA1_action = 'defend';
-                        logMessage(`[이중 행동] 방어를 시전합니다. 첫 번째 대상을 선택하세요.`);
-                        setupTargeting('skill1', { targetTeam: 'ally' });
-                    }}
-                ]
+                buttons
             );
         }
 
@@ -1478,7 +1533,7 @@
             
             if (!skillA1_firstTarget) {
                 skillA1_firstTarget = target;
-                logMessage(`첫 번째 대상(${target.name}) 선택. 두 번째 대상을 선택하세요.`);
+                logMessage(`첫 번째 대상(${target.name}) 선택. 다른 대상을 선택하세요.`, 'info');
                 
                 if (skillA1_action === 'attack') {
                     setupTargeting('skill1', { targetTeam: 'enemy', excludeId: target.id });
@@ -1532,9 +1587,9 @@
         }
 
         function handleSkill_A3_Target(attacker, defender) {
-            logMessage(`${attacker.name}(이)가 ${defender.name}에게 [기절 공격]을 시전합니다!`, attacker.id.startsWith('A') ? 'A' : 'B');
-            defender.stunDuration = 2;
-            logMessage(`${defender.name}을(를) 다음 턴 행동 불능 상태로 만듭니다.`, 'info');
+            logMessage(`${formatName(attacker.name, '이가')} ${formatName(defender.name, '에게')} [기절 공격]을 시전합니다!`, attacker.id.startsWith('A') ? 'A' : 'B');
+            defender.stunDuration = 3; // 3: 현재 턴 행동 가능, 2: 다음 턴 행동 불가, 1: 기절 해제 예정
+            logMessage(`${formatName(defender.name, '은는')} 다음 턴에 행동할 수 없게 됩니다.`, 'info');
             updateCharacterUI(defender);
             finishAction(true);
         }
