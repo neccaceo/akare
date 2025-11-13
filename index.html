@@ -1247,20 +1247,31 @@
             const panel = document.getElementById('actionPanel');
             const buttons = panel.querySelectorAll('button[data-action]');
             const cancelBtn = document.getElementById('cancelActionButton');
-            
+
+            // 클래스별 스킬명 정의
+            const skillNames = {
+                'A': ['이중 행동', '반사 방패', '기절 공격'],
+                'B': ['최고치 선택', '2배 강화', '흡혈 공격'],
+                'C': ['관통 공격', '체력 동결', '45 고정']
+            };
+
             if (show) {
                 panel.classList.remove('hidden');
                 buttons.forEach(btn => {
                     const action = btn.dataset.action;
                     if (action !== 'cancel') {
                         btn.classList.remove('hidden');
-                        
-                        // 스킬 버튼에 클래스별 색상 적용
+
+                        // 스킬 버튼에 클래스별 색상 및 텍스트 적용
                         if (action.startsWith('skill')) {
                             btn.classList.remove('class-A', 'class-B', 'class-C');
                             if (charClass) {
                                 btn.classList.add(`class-${charClass}`);
                                 btn.disabled = false;
+
+                                // 스킬 번호 추출 (skill1 -> 0, skill2 -> 1, skill3 -> 2)
+                                const skillIndex = parseInt(action.slice(-1)) - 1;
+                                btn.textContent = skillNames[charClass][skillIndex];
                             } else {
                                 btn.disabled = true;
                             }
