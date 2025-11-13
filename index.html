@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>턴제 전투 시뮬레이터</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background: white;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow:hidden;
+        }
+
+        #mainWrapper {
+            width: 100%;
+            max-width: 1400px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 전투 규모 선택 */
+        #battleScaleButtons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        #battleScaleButtons button {
+            padding: 20px 40px;
+            font-size: 18px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #battleScaleButtons button:hover {
+            background: #5568d3;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 캐릭터 설정 */
+        #characterSetupPanel {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        #teamASetup, #teamBSetup {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+        }
+
+        .character-select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            align-items: center;
+        }
+
+        .character-select-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .character-select-group select,
+        .character-select-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #startGameButton {
+            padding: 15px 50px;
+            font-size: 18px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #startGameButton:hover {
+            background: #218838;
+        }
+
+        #changeScaleButton {
+            padding: 15px 50px;
+            font-size: 18px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #changeScaleButton:hover {
+            background: #5a6268;
+        }
+
+        /* 전투 패널 */
+        #battlePanel {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            max-height: 95vh;
+        }
+
+        #backButton {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        #backButton:hover {
+            background: #5a6268;
+        }
+
+        #battlePanel > div:nth-child(2),
+        #battlePanel > div:nth-child(4) {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            flex-shrink: 0;
+        }
+
+        #vsIndicator {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #dc3545;
+            flex-shrink: 0;
+        }
+
+        .character-card {
+            width: 180px;
+            padding: 12px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .character-card.teamA {
+            border-color: #007bff;
+        }
+
+        .character-card.teamB {
+            border-color: #dc3545;
+        }
+
+        .character-card.active {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            transform: scale(1.05);
+            border-color: #ffd700;
+            border-width: 4px;
+        }
+
+        .character-card.targetable {
+            cursor: pointer;
+            border-color: #28a745;
+            border-width: 4px;
+        }
+
+        .character-card.targetable:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .character-card.dead {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+
+        .character-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .character-card p {
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .hp-container {
+            margin: 10px 0;
+        }
+
+        .character-hp {
+            display: block;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .character-hp.low {
+            color: #ffc107;
+        }
+
+        .character-hp.critical {
+            color: #dc3545;
+        }
+
+        .hp-input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        .status-effects {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .status-effect {
+            padding: 3px 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status-reflect {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-stunned {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-frozen {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* 액션 패널 */
+        #actionPanel {
+            text-align: center;
+            margin: 15px 0;
+            flex-shrink: 0;
+        }
+
+        #actionPanel button {
+            margin: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #actionPanel button:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        #actionPanel button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* A 클래스 스킬 색상 */
+        #actionPanel button[data-skill="skill1"].class-A {
+            background: #e74c3c;
+        }
+
+        #actionPanel button[data-skill="skill1"].class-A:hover:not(:disabled) {
+            background: #c0392b;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-A {
+            background: #e67e22;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-A:hover:not(:disabled) {
+            background: #d35400;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-A {
+            background: #f39c12;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-A:hover:not(:disabled) {
+            background: #d68910;
+        }
+
+        /* B 클래스 스킬 색상 */
+        #actionPanel button[data-skill="skill1"].class-B {
+            background: #3498db;
+        }
+
+        #actionPanel button[data-skill="skill1"].class-B:hover:not(:disabled) {
+            background: #2980b9;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-B {
+            background: #9b59b6;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-B:hover:not(:disabled) {
+            background: #8e44ad;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-B {
+            background: #e91e63;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-B:hover:not(:disabled) {
+            background: #c2185b;
+        }
+
+        /* C 클래스 스킬 색상 */
+        #actionPanel button[data-skill="skill1"].class-C {
+            background: #1abc9c;
+        }
+
+        #actionPanel button[data-skill="skill1"].class-C:hover:not(:disabled) {
+            background: #16a085;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-C {
+            background: #2ecc71;
+        }
+
+        #actionPanel button[data-skill="skill2"].class-C:hover:not(:disabled) {
+            background: #27ae60;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-C {
+            background: #f1c40f;
+        }
+
+        #actionPanel button[data-skill="skill3"].class-C:hover:not(:disabled) {
+            background: #f39c12;
+        }
+
+        #cancelActionButton {
+            background: #dc3545;
+        }
+
+        #cancelActionButton:hover {
+            background: #c82333;
+        }
+
+        /* 로그 */
+        #logContainer {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        #battleLog {
+            list-style: none;
+        }
+
+        #battleLog li {
+            padding: 4px;
+            margin-bottom: 5px;
+            border-left: 4px solid #ccc;
+        }
+
+        #battleLog li.system {
+            background: #e9ecef;
+            border-left-color: #6c757d;
+            font-weight: bold;
+        }
+
+        #battleLog li.A {
+            background: #d1ecf1;
+            border-left-color: #0c5460;
+        }
+
+        #battleLog li.B {
+            background: #f8d7da;
+            border-left-color: #721c24;
+        }
+
+        #battleLog li.info {
+            background: #fff3cd;
+            border-left-color: #856404;
+        }
+
+        #battleLog li.damage {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        #battleLog li.heal {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        #battleLog li.turn {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* 모달 */
+        #modalBackdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        #modalTitle {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        #modalMessage {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        #modalButtons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        #modalButtons button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #modalButtons button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainWrapper">
+        <div id="gameSetup">
+            <h1>턴제 전투 시뮬레이터</h1>
+            <h2>전투 규모 선택</h2>
+            <div id="battleScaleButtons">
+                <button data-scale="1">1 vs 1</button>
+                <button data-scale="2">2 vs 2</button>
+                <button data-scale="3">3 vs 3</button>
+            </div>
+        </div>
+
+        <div id="gameContainer" class="hidden">
+            <div id="characterSetupPanel">
+                <div id="teamASetup">
+                    <h2>A팀 설정</h2>
+                </div>
+                <div id="teamBSetup">
+                    <h2>B팀 설정</h2>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                <button id="changeScaleButton">규모 변경</button>
+                <button id="startGameButton">전투 시작</button>
+            </div>
+
+            <div id="battlePanel" class="hidden">
+                <button id="backButton">규모 선택으로</button>
+                
+                <div id="teamAContainer" class="team-battle-container"></div>
+                <div id="vsIndicator">VS</div>
+                <div id="teamBContainer" class="team-battle-container"></div>
+
+                <div id="actionPanel" class="hidden">
+                    <button data-action="attack">공격</button>
+                    <button data-action="defend">방어</button>
+                    <button data-action="dodge">도주</button>
+                    <button data-action="wait">대기</button>
+                    <button data-action="skill1" data-skill="skill1">스킬 1</button>
+                    <button data-action="skill2" data-skill="skill2">스킬 2</button>
+                    <button data-action="skill3" data-skill="skill3">스킬 3</button>
+                    <button id="cancelActionButton" class="hidden" data-action="cancel">취소</button>
+                </div>
+
+                <div id="logContainer">
+                    <ul id="battleLog"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalBackdrop" class="hidden">
+        <div id="modal">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div id="modalButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        // === 게임 데이터 ===
+        const teamRoster = {
+            "A팀": [
+                { name: "알렉스", class: "A" },
+                { name: "데이먼", class: "B" },
+                { name: "가이아", class: "C" },
+            ],
+            "B팀": [
+                { name: "브라이언", class: "A" },
+                { name: "엘리나", class: "B" },
+                { name: "헥토르", class: "B" },
+                { name: "클레어", class: "A" },
+                { name: "핀", class: "C" },
+                { name: "아이리스", class: "C" },
+            ]
+        };
+
+        const MAX_HP = 200;
+        const MAX_ROUNDS = 5;
+        let battleScale = 1;
+        let teamA = [];
+        let teamB = [];
+        let isTeamATurn = true;
+        let isTeamAFirst = true;
+        let currentActorIndex = 0;
+        let currentAction = null;
+        let currentTurn = 1;
+
+        // 스킬 상태 변수
+        let skillA1_action = null;
+        let skillA1_firstTarget = null;
+        let skillA2_reflector = null;
+        let skillB1_action = null;
+        let skillB1_roll = 0;
+        let skillB2_action = null;
+        let skillB2_roll = 0;
+        let skillC3_action = null;
+        let skillC3_roll = 0;
+
+        // === 초기화 ===
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('battleScaleButtons').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    battleScale = parseInt(e.target.dataset.scale);
+                    setupCharacterSelection(battleScale);
+                }
+            });
+
+            document.getElementById('startGameButton').addEventListener('click', initializeGame);
+            document.getElementById('backButton').addEventListener('click', resetToScaleSelection);
+            document.getElementById('changeScaleButton').addEventListener('click', resetToScaleSelection);
+            
+            document.getElementById('battlePanel').addEventListener('click', (e) => {
+                const card = e.target.closest('.character-card');
+                if (card && card.classList.contains('targetable')) {
+                    handleTargetClick(card.id);
+                }
+            });
+
+            document.getElementById('actionPanel').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const action = e.target.dataset.action;
+                    if (action === 'cancel') {
+                        cancelAction();
+                    } else {
+                        handleAction(action);
+                    }
+                }
+            });
+        });
+
+        // === 유틸리티 함수 ===
+        function roll3d10() {
+            return Math.floor(Math.random() * 10) + 1 +
+                   Math.floor(Math.random() * 10) + 1 +
+                   Math.floor(Math.random() * 10) + 1;
+        }
+
+        function findCharacterById(id) {
+            return [...teamA, ...teamB].find(c => c.id === id);
+        }
+
+        function getCurrentActor() {
+            const currentTeam = isTeamATurn ? teamA : teamB;
+            return currentTeam[currentActorIndex];
+        }
+
+        // === 게임 초기화 ===
+        function initializeGame() {
+            teamA = [];
+            teamB = [];
+            const errorMessages = [];
+            const selectedCharacters = new Set();
+
+            for (let i = 0; i < battleScale; i++) {
+                // A팀 캐릭터 설정
+                const selectA = document.getElementById(`A-char-select-${i}`);
+                const hpA = document.getElementById(`A-char-hp-${i}`);
+                const rosterIndexA = parseInt(selectA.value);
+                const startHpA = parseInt(hpA.value);
+
+                if (isNaN(rosterIndexA)) {
+                    errorMessages.push(`❌ A팀의 ${i+1}번째 캐릭터를 선택하세요.`);
+                    continue;
+                }
+                if (selectedCharacters.has(`A-${rosterIndexA}`)) {
+                    errorMessages.push(`❌ A팀의 ${teamRoster["A팀"][rosterIndexA].name}(이)가 중복 선택되었습니다.`);
+                    continue;
+                }
+                selectedCharacters.add(`A-${rosterIndexA}`);
+                
+                const rosterEntryA = teamRoster["A팀"][rosterIndexA];
+                teamA.push(createCharacter(rosterEntryA.name, rosterEntryA.class, `A-${i}`, startHpA));
+
+                // B팀 캐릭터 설정
+                const selectB = document.getElementById(`B-char-select-${i}`);
+                const hpB = document.getElementById(`B-char-hp-${i}`);
+                const rosterIndexB = parseInt(selectB.value);
+                const startHpB = parseInt(hpB.value);
+
+                if (isNaN(rosterIndexB)) {
+                    errorMessages.push(`❌ B팀의 ${i+1}번째 캐릭터를 선택하세요.`);
+                    continue;
+                }
+                if (selectedCharacters.has(`B-${rosterIndexB}`)) {
+                    errorMessages.push(`❌ B팀의 ${teamRoster["B팀"][rosterIndexB].name}(이)가 중복 선택되었습니다.`);
+                    continue;
+                }
+                selectedCharacters.add(`B-${rosterIndexB}`);
+
+                const rosterEntryB = teamRoster["B팀"][rosterIndexB];
+                teamB.push(createCharacter(rosterEntryB.name, rosterEntryB.class, `B-${i}`, startHpB));
+            }
+
+            if (errorMessages.length > 0) {
+                showModal(
+                    "⚠️ 전투 시작 불가",
+                    errorMessages.join('\n'),
+                    [
+                        { text: "확인", handler: () => {} }
+                    ]
+                );
+                return;
+            }
+
+            // UI 전환
+            document.getElementById('gameSetup').classList.add('hidden');
+            document.getElementById('characterSetupPanel').classList.add('hidden');
+            document.getElementById('startGameButton').classList.add('hidden');
+            document.getElementById('changeScaleButton').classList.add('hidden');
+            document.getElementById('battlePanel').classList.remove('hidden');
+            document.getElementById('battleLog').innerHTML = '';
+
+            displayTeam(teamA, 'A');
+            displayTeam(teamB, 'B');
+
+            // 선공 결정
+            isTeamAFirst = Math.random() < 0.5;
+            isTeamATurn = isTeamAFirst;
+            currentActorIndex = 0;
+            currentTurn = 1;
+
+            logMessage("전투 시작!", 'system');
+            logMessage(`1턴을 시작합니다. ${isTeamAFirst ? 'A팀' : 'B팀'}이 선공입니다.`, 'system');
+            
+            startRound();
+            startTurn();
+        }
+
+        function createCharacter(name, charClass, id, startHp) {
+            const hp = Math.max(1, Math.min(startHp, MAX_HP));
+            return {
+                id: id,
+                name: name,
+                class: charClass,
+                maxHp: MAX_HP,
+                currentHp: hp,
+                defendRoll: 0,
+                attackRollsReceived: [],
+                effects: [],
+                isDead: false,
+                isEscaped: false,
+                isReflecting: false,
+                isFrozen: false,
+                stunDuration: 0,
+            };
+        }
+
+        // === 라운드 및 턴 관리 ===
+        function startRound() {
+            teamA.forEach(c => {
+                c.defendRoll = 0;
+                c.attackRollsReceived = [];
+                c.effects = [];
+                c.isReflecting = false;
+                c.isFrozen = false;
+                if (c.stunDuration > 0 && !c.isDead) {
+                    c.stunDuration--;
+                    if (c.stunDuration === 0) {
+                        logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
+                    }
+                }
+                updateCharacterUI(c);
+            });
+            teamB.forEach(c => {
+                c.defendRoll = 0;
+                c.attackRollsReceived = [];
+                c.effects = [];
+                c.isReflecting = false;
+                c.isFrozen = false;
+                if (c.stunDuration > 0 && !c.isDead) {
+                    c.stunDuration--;
+                    if (c.stunDuration === 0) {
+                        logMessage(`${c.name}의 기절이 풀렸습니다!`, 'info');
+                    }
+                }
+                updateCharacterUI(c);
+            });
+        }
+
+        function startTurn() {
+            const currentTeam = isTeamATurn ? teamA : teamB;
+            
+            if (currentActorIndex >= currentTeam.length) {
+                endTeamTurn();
+                return;
+            }
+
+            const actor = currentTeam[currentActorIndex];
+
+            if (actor.isDead || actor.isEscaped) {
+                currentActorIndex++;
+                startTurn();
+                return;
+            }
+
+            // 기절 상태 처리
+            if (actor.stunDuration >= 1) {
+                logMessage(`${actor.name}은(는) 기절해서 행동할 수 없습니다!`, 'info');
+                setTimeout(() => {
+                    currentActorIndex++;
+                    startTurn();
+                }, 500);
+                return;
+            }
+
+            logMessage(`>>> ${actor.name}의 턴입니다. 행동을 선택하세요.`, 'turn');
+            toggleActionButtons(true, actor.class);
+            highlightActiveCard(actor.id, true);
+        }
+
+        function endTeamTurn() {
+            const isFirstTeamDone = (isTeamAFirst && isTeamATurn) || (!isTeamAFirst && !isTeamATurn);
+
+            if (isFirstTeamDone) {
+                // 선공팀 턴 종료 - 후공팀으로 전환
+                const nextTeam = isTeamATurn ? 'B' : 'A';
+                logMessage(`${nextTeam}팀의 차례입니다.`, 'system');
+                
+                isTeamATurn = !isTeamATurn;
+                currentActorIndex = 0;
+                startTurn();
+            } else {
+                // 후공팀 턴 종료 - 턴 정산 (별도 안내 없음)
+                performRoundTally();
+                
+                const aDead = teamA.every(c => c.isDead || c.isEscaped);
+                const bDead = teamB.every(c => c.isDead || c.isEscaped);
+                
+                // 승패 판정
+                if (aDead || bDead) {
+                    endGame(aDead, bDead, false);
+                    return;
+                }
+                
+                // 5턴 종료 체크
+                if (currentTurn >= MAX_ROUNDS) {
+                    endGame(false, false, true);
+                    return;
+                }
+                
+                // 새 턴 시작
+                currentTurn++;
+                isTeamAFirst = !isTeamAFirst;
+                isTeamATurn = isTeamAFirst;
+                currentActorIndex = 0;
+
+                logMessage("--- 새 턴 시작 ---", 'system');
+                logMessage(`${currentTurn}턴을 시작합니다. ${isTeamAFirst ? 'A팀' : 'B팀'}이 선공입니다.`, 'system');
+                
+                startRound();
+                startTurn();
+            }
+        }
+
+        function performRoundTally() {
+            logMessage("--- 턴 정산 ---", 'system');
+            const allCharacters = [...teamA, ...teamB];
+
+            allCharacters.forEach(char => {
+                if (char.isDead || char.isEscaped) {
+                    return;
+                }
+
+                if (char.isFrozen) {
+                    logMessage(`${char.name}은(는) [체력 동결] 상태라 피해를 입지 않습니다.`, 'info');
+                    return;
+                }
+
+                let totalDamageTaken = 0;
+                let remainingDefendRoll = char.defendRoll;
+
+                // 공격을 높은 순으로 정렬
+                char.attackRollsReceived.sort((a, b) => b.roll - a.roll);
+
+                char.attackRollsReceived.forEach(attack => {
+                    let damage = 0;
+                    let logSuffix = "";
+
+                    if (attack.type === 'skill_C1') {
+                        // 관통 공격 - 방어 무시
+                        damage = attack.roll;
+                        logSuffix = `[관통] (방어 무시)`;
+                    } else if (remainingDefendRoll > 0) {
+                        // 방어 적용
+                        const blocked = Math.min(remainingDefendRoll, attack.roll);
+                        damage = attack.roll - blocked;
+                        remainingDefendRoll -= blocked;
+                        logSuffix = `방어 [${char.defendRoll}] 으로 [${blocked}] 막음!`;
+                    } else {
+                        // 방어 없음
+                        damage = attack.roll;
+                        logSuffix = `방어 없음!`;
+                    }
+
+                    if (damage > 0) {
+                        totalDamageTaken += damage;
+                        logMessage(`정산: ${char.name}(이)가 [공격 ${attack.roll}]를 ${logSuffix} -> ${damage}의 피해!`, 'damage');
+                        
+                        // 반사 방패 처리
+                        if (char.isReflecting) {
+                            const reflectEffect = char.effects.find(e => e.type === 'skill_A2_target');
+                            if (reflectEffect) {
+                                const reflectTarget = findCharacterById(reflectEffect.targetId);
+                                const reflectDamage = Math.floor(damage / 3);
+                                if (reflectTarget && !reflectTarget.isDead && reflectDamage > 0) {
+                                    reflectTarget.attackRollsReceived.push({ 
+                                        roll: reflectDamage, 
+                                        type: 'skill_A2_reflect',
+                                        attackerId: char.id 
+                                    });
+                                    logMessage(`[반사 방패] ${char.name}(이)가 ${reflectTarget.name}에게 ${reflectDamage}의 피해를 반사!`, 'info');
+                                }
+                            }
+                        }
+
+                        // 흡혈 공격 처리
+                        if (attack.type === 'skill_B3' && attack.attackerId) {
+                            const attacker = findCharacterById(attack.attackerId);
+                            if (attacker && !attacker.isDead) {
+                                const healAmount = Math.floor(damage * 1.5);
+                                attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + healAmount);
+                                logMessage(`[흡혈 공격] ${attacker.name}(이)가 ${healAmount}만큼 HP를 회복합니다!`, 'heal');
+                                updateCharacterUI(attacker);
+                            }
+                        }
+                    }
+                });
+
+                // HP 적용
+                if (totalDamageTaken > 0) {
+                    char.currentHp -= totalDamageTaken;
+                    logMessage(`${char.name}의 HP가 ${char.currentHp + totalDamageTaken} -> ${char.currentHp} (총 ${totalDamageTaken} 피해)`, 'damage');
+                    if (char.currentHp <= 0) {
+                        char.currentHp = 0;
+                        char.isDead = true;
+                        logMessage(`${char.name}(이)가 전투 불능 상태가 되었습니다!`, 'info');
+                    }
+                    updateCharacterUI(char);
+                } else if (char.attackRollsReceived.length > 0) {
+                    logMessage(`정산: ${char.name}(이)가 모든 피해를 방어했습니다!`, 'info');
+                }
+            });
+
+            // 개별 상태 출력
+            logMessage("--- 개별 HP 현황 ---", "system");
+            teamA.forEach(c => logCharacterStatus(c, "A"));
+            teamB.forEach(c => logCharacterStatus(c, "B"));
+        }
+
+        function logCharacterStatus(c, team) {
+            if (c.isDead) {
+                logMessage(`${c.name}: [전투 불능]`, `team${team}`);
+            } else if (c.isEscaped) {
+                logMessage(`${c.name}: [도주]`, `team${team}`);
+            } else {
+                logMessage(`${c.name}: HP ${c.currentHp}/${c.maxHp}`, `team${team}`);
+            }
+        }
+
+        function endGame(aDead, bDead, isMaxRound) {
+            toggleActionButtons(false);
+            highlightActiveCard(null, false);
+            
+            if (isMaxRound) {
+                // 5턴 종료 - 로그에만 표시
+                const aTeamHP = teamA.reduce((sum, c) => sum + (c.isDead || c.isEscaped ? 0 : c.currentHp), 0);
+                const bTeamHP = teamB.reduce((sum, c) => sum + (c.isDead || c.isEscaped ? 0 : c.currentHp), 0);
+                
+                logMessage("=== 5턴 종료 ===", 'system');
+                logMessage(`A팀 총 HP: ${aTeamHP}`, 'teamA');
+                logMessage(`B팀 총 HP: ${bTeamHP}`, 'teamB');
+                logMessage("전투가 종료되었습니다.", 'system');
+            } else {
+                // 전투 불능으로 승패 결정
+                let title = "";
+                let message = "";
+                
+                if (aDead && bDead) {
+                    title = "🏁 전투 종료!";
+                    message = "양 팀 모두 전투 불능 상태입니다.\n\n🤝 무승부!";
+                    logMessage("무승부!", 'system');
+                } else if (bDead) {
+                    title = "🏁 전투 종료!";
+                    message = "B팀이 모두 전투 불능 상태입니다.\n\n🎉 A팀 승리!";
+                    logMessage("A팀 승리!", 'system');
+                } else if (aDead) {
+                    title = "🏁 전투 종료!";
+                    message = "A팀이 모두 전투 불능 상태입니다.\n\n🎉 B팀 승리!";
+                    logMessage("B팀 승리!", 'system');
+                }
+                
+                showModal(
+                    title,
+                    message,
+                    [
+                        { text: "규모 선택으로", handler: () => { resetToScaleSelection(); } },
+                        { text: "확인", handler: () => {} }
+                    ]
+                );
+            }
+        }
+
+        // === 행동 처리 ===
+        function handleAction(action) {
+            const actor = getCurrentActor();
+            const teamType = actor.id.startsWith('A') ? 'A' : 'B';
+            currentAction = action;
+            
+            toggleActionButtons(false);
+
+            switch (action) {
+                case 'attack':
+                    logMessage(`${actor.name}(이)가 공격을 준비합니다. 대상을 선택하세요.`, teamType);
+                    setupTargeting('attack', { targetTeam: 'enemy' });
+                    break;
+                case 'defend':
+                    logMessage(`${actor.name}(이)가 방어를 준비합니다. 아군(자신 포함)을 선택하세요.`, teamType);
+                    setupTargeting('defend', { targetTeam: 'ally' });
+                    break;
+                case 'dodge':
+                    performDodge(actor, teamType);
+                    break;
+                case 'wait':
+                    logMessage(`${actor.name}(이)가 대기합니다.`, teamType);
+                    finishAction(true);
+                    break;
+                case 'skill1':
+                case 'skill2':
+                case 'skill3':
+                    handleSkill(actor, action, teamType);
+                    break;
+            }
+        }
+
+        function executeAction(defender) {
+            const attacker = getCurrentActor();
+            const attackerType = attacker.id.startsWith('A') ? 'A' : 'B';
+
+            switch (currentAction) {
+                case 'attack':
+                    registerAttack(attacker, defender, 'normal');
+                    finishAction(true);
+                    break;
+                case 'defend':
+                    const roll = roll3d10();
+                    defender.defendRoll = roll;
+                    logMessage(`${attacker.name}(이)가 ${defender.name}에게 방어(${roll})를 시전합니다.`, attackerType);
+                    finishAction(true);
+                    break;
+                case 'skill1':
+                    handleSkillTarget(attacker, defender, 'skill1');
+                    break;
+                case 'skill2':
+                    handleSkillTarget(attacker, defender, 'skill2');
+                    break;
+                case 'skill3':
+                    handleSkillTarget(attacker, defender, 'skill3');
+                    break;
+            }
+        }
+
+        function registerAttack(attacker, defender, type, fixedRoll = null) {
+            const roll = fixedRoll !== null ? fixedRoll : roll3d10();
+            let logMsg = `[공격 ${roll}] (${type})`;
+            
+            if (type === 'skill_B3') logMsg = `[흡혈 공격 ${roll}]`;
+            if (type === 'skill_C1') logMsg = `[관통 공격 ${roll}] (방어무시 20 포함)`;
+
+            defender.attackRollsReceived.push({ 
+                roll: roll, 
+                type: type, 
+                attackerId: attacker.id 
+            });
+            
+            logMessage(`${attacker.name}(이)가 ${defender.name}을(를) 공격!`, attacker.id.startsWith('A') ? 'A' : 'B');
+        }
+
+        function performDodge(actor, teamType) {
+            const roll = roll3d10();
+            if (roll >= 22) {
+                actor.isEscaped = true;
+                logMessage(`${actor.name}(이)가 도주합니다! (굴림: ${roll})`, teamType);
+                updateCharacterUI(actor);
+            } else {
+                logMessage(`${actor.name}(이)가 도주에 실패했습니다. (굴림: ${roll})`, teamType);
+            }
+            finishAction(true);
+        }
+
+        function finishAction(advanceTurn) {
+            cleanupTargeting();
+            currentAction = null;
+            
+            // 스킬 상태 초기화
+            skillA1_action = null;
+            skillA1_firstTarget = null;
+            skillA2_reflector = null;
+            skillB1_action = null;
+            skillB1_roll = 0;
+            skillB2_action = null;
+            skillB2_roll = 0;
+            skillC3_action = null;
+            skillC3_roll = 0;
+
+            highlightActiveCard(null, false);
+            
+            if (advanceTurn) {
+                const actor = getCurrentActor();
+                if (actor && (actor.isDead || actor.isEscaped)) {
+                    const aDead = teamA.every(c => c.isDead || c.isEscaped);
+                    const bDead = teamB.every(c => c.isDead || c.isEscaped);
+                    if (aDead || bDead) {
+                        endGame(aDead, bDead, false);
+                        return;
+                    }
+                }
+                
+                currentActorIndex++;
+                startTurn();
+            }
+        }
+
+        // === UI 함수 ===
+        function setupCharacterSelection(scale) {
+            document.getElementById('gameSetup').classList.add('hidden');
+            document.getElementById('gameContainer').classList.remove('hidden');
+
+            const teamASetup = document.getElementById('teamASetup');
+            const teamBSetup = document.getElementById('teamBSetup');
+            teamASetup.innerHTML = '<h2>A팀 설정</h2>';
+            teamBSetup.innerHTML = '<h2>B팀 설정</h2>';
+
+            for (let i = 0; i < scale; i++) {
+                teamASetup.appendChild(createCharacterSelectGroup(i, 'A'));
+                teamBSetup.appendChild(createCharacterSelectGroup(i, 'B'));
+            }
+        }
+
+        function createCharacterSelectGroup(index, team) {
+            const div = document.createElement('div');
+            div.className = 'character-select-group';
+            
+            const roster = (team === 'A') ? teamRoster["A팀"] : teamRoster["B팀"];
+            
+            let options = '<option value="" disabled selected>캐릭터 선택</option>';
+            roster.forEach((char, i) => {
+                options += `<option value="${i}">${char.name} (${char.class})</option>`;
+            });
+
+            div.innerHTML = `
+                <label for="${team}-char-select-${index}">캐릭터 ${index + 1}</label>
+                <select id="${team}-char-select-${index}">
+                    ${options}
+                </select>
+                <label for="${team}-char-hp-${index}">시작 HP</label>
+                <input type="number" id="${team}-char-hp-${index}" value="${MAX_HP}" min="1" max="${MAX_HP}">
+            `;
+            return div;
+        }
+
+        function displayTeam(team, teamId) {
+            const container = document.getElementById(`team${teamId}Container`);
+            container.innerHTML = '';
+            team.forEach(char => {
+                container.appendChild(createCharacterCardHTML(char, teamId));
+            });
+        }
+
+        function createCharacterCardHTML(char, teamId) {
+            const card = document.createElement('div');
+            card.id = char.id;
+            card.className = `character-card team${teamId}`;
+            card.innerHTML = `
+                <h3>${char.name}</h3>
+                <p>${char.class} 클래스</p>
+                <div class="hp-container">
+                    <span class="character-hp">HP: ${char.currentHp} / ${char.maxHp}</span>
+                </div>
+                <div class="status-effects"></div>
+            `;
+            return card;
+        }
+
+        function updateCharacterUI(char) {
+            const card = document.getElementById(char.id);
+            if (!card) return;
+
+            const hpSpan = card.querySelector('.character-hp');
+            const statusContainer = card.querySelector('.status-effects');
+
+            hpSpan.textContent = `HP: ${char.currentHp} / ${char.maxHp}`;
+
+            hpSpan.classList.remove('low', 'critical');
+            if (char.currentHp <= char.maxHp * 0.5) {
+                hpSpan.classList.add('low');
+            }
+            if (char.currentHp <= char.maxHp * 0.2) {
+                hpSpan.classList.add('critical');
+            }
+
+            statusContainer.innerHTML = '';
+            if (char.isReflecting) {
+                statusContainer.innerHTML += '<span class="status-effect status-reflect">반사</span>';
+            }
+            if (char.stunDuration >= 1) {
+                statusContainer.innerHTML += '<span class="status-effect status-stunned">기절</span>';
+            }
+            if (char.isFrozen) {
+                statusContainer.innerHTML += '<span class="status-effect status-frozen">동결</span>';
+            }
+
+            if (char.isDead || char.isEscaped) {
+                card.classList.add('dead');
+                if (char.isEscaped) {
+                    hpSpan.textContent = "[도주]";
+                } else {
+                    hpSpan.textContent = "[전투 불능]";
+                }
+            } else {
+                card.classList.remove('dead');
+            }
+        }
+
+        function highlightActiveCard(cardId, isActive) {
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            if (isActive && cardId) {
+                const card = document.getElementById(cardId);
+                if (card) card.classList.add('active');
+            }
+        }
+
+        function toggleActionButtons(show, charClass = null) {
+            const panel = document.getElementById('actionPanel');
+            const buttons = panel.querySelectorAll('button[data-action]');
+            const cancelBtn = document.getElementById('cancelActionButton');
+            
+            if (show) {
+                panel.classList.remove('hidden');
+                buttons.forEach(btn => {
+                    const action = btn.dataset.action;
+                    if (action !== 'cancel') {
+                        btn.classList.remove('hidden');
+                        
+                        // 스킬 버튼에 클래스별 색상 적용
+                        if (action.startsWith('skill')) {
+                            btn.classList.remove('class-A', 'class-B', 'class-C');
+                            if (charClass) {
+                                btn.classList.add(`class-${charClass}`);
+                                btn.disabled = false;
+                            } else {
+                                btn.disabled = true;
+                            }
+                        } else {
+                            btn.disabled = false;
+                        }
+                    }
+                });
+                cancelBtn.classList.add('hidden');
+            } else {
+                buttons.forEach(btn => {
+                    if (btn.dataset.action !== 'cancel') {
+                        btn.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        function setupTargeting(action, options = {}) {
+            const { targetTeam, excludeId = null } = options;
+            const actor = getCurrentActor();
+            const actorTeamId = actor.id.startsWith('A') ? 'A' : 'B';
+            
+            let targets = [];
+            
+            if (targetTeam === 'enemy') {
+                targets = (actorTeamId === 'A' ? teamB : teamA);
+            } else if (targetTeam === 'ally') {
+                targets = (actorTeamId === 'A' ? teamA : teamB);
+            }
+
+            targets.forEach(char => {
+                if (!char.isDead && !char.isEscaped && char.id !== excludeId) {
+                    const card = document.getElementById(char.id);
+                    if (card) card.classList.add('targetable');
+                }
+            });
+
+            document.getElementById('cancelActionButton').classList.remove('hidden');
+        }
+
+        function cleanupTargeting() {
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('targetable');
+            });
+            document.getElementById('cancelActionButton').classList.add('hidden');
+        }
+
+        function cancelAction() {
+            cleanupTargeting();
+            toggleActionButtons(true, getCurrentActor().class);
+            
+            currentAction = null;
+            skillA1_action = null;
+            skillA1_firstTarget = null;
+            skillA2_reflector = null;
+            skillB1_action = null;
+            skillB1_roll = 0;
+            skillB2_action = null;
+            skillB2_roll = 0;
+            skillC3_action = null;
+            skillC3_roll = 0;
+        }
+
+        function handleTargetClick(targetId) {
+            const defender = findCharacterById(targetId);
+            if (!defender) return;
+            
+            if (currentAction !== 'skill1' || skillA1_firstTarget) {
+                cleanupTargeting();
+            }
+            executeAction(defender);
+        }
+
+        function logMessage(message, type = 'info') {
+            const logList = document.getElementById('battleLog');
+            const li = document.createElement('li');
+            li.textContent = message;
+            li.className = type;
+            logList.appendChild(li);
+            logList.scrollTop = logList.scrollHeight;
+        }
+
+        function updateTurnIndicator(message, type = 'info') {
+            logMessage(message, type);
+        }
+
+        function resetToScaleSelection() {
+            document.getElementById('gameContainer').classList.add('hidden');
+            document.getElementById('battlePanel').classList.add('hidden');
+            document.getElementById('characterSetupPanel').classList.remove('hidden');
+            document.getElementById('gameSetup').classList.remove('hidden');
+            document.getElementById('startGameButton').classList.remove('hidden');
+            document.getElementById('changeScaleButton').classList.remove('hidden');
+            
+            teamA = [];
+            teamB = [];
+            currentActorIndex = 0;
+            currentTurn = 1;
+            document.getElementById('battleLog').innerHTML = '';
+            document.getElementById('teamAContainer').innerHTML = '';
+            document.getElementById('teamBContainer').innerHTML = '';
+        }
+
+        function showModal(title, message, buttons) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            const modalButtons = document.getElementById('modalButtons');
+            modalButtons.innerHTML = '';
+
+            buttons.forEach(btnInfo => {
+                const button = document.createElement('button');
+                button.textContent = btnInfo.text;
+                button.addEventListener('click', () => {
+                    btnInfo.handler();
+                    hideModal();
+                });
+                modalButtons.appendChild(button);
+            });
+
+            document.getElementById('modalBackdrop').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('modalBackdrop').classList.add('hidden');
+        }
+
+        // === 스킬 시스템 ===
+        function handleSkill(actor, action, teamType) {
+            const skillNum = action.slice(-1);
+            const handlerName = `handleSkill_${actor.class}${skillNum}`;
+            
+            if (window[handlerName]) {
+                window[handlerName]();
+            } else {
+                logMessage(`클래스 ${actor.class}의 ${action} 스킬이 구현되지 않았습니다.`, 'info');
+                finishAction(false);
+            }
+        }
+
+        function handleSkillTarget(attacker, defender, skill) {
+            const skillNum = skill.slice(-1);
+            const handlerName = `handleSkill_${attacker.class}${skillNum}_Target`;
+            
+            if (window[handlerName]) {
+                window[handlerName](attacker, defender);
+            } else {
+                logMessage(`클래스 ${attacker.class}의 ${skill} 스킬 타겟 핸들러가 구현되지 않았습니다.`, 'info');
+                finishAction(true);
+            }
+        }
+
+        // === A 클래스 스킬 ===
+        function handleSkill_A1() {
+            showModal(
+                "A-1: 이중 행동",
+                "공격(적 2명) 또는 방어(아군 2명)를 선택하세요.",
+                [
+                    { text: "공격 (적 2명)", handler: () => {
+                        currentAction = 'skill1';
+                        skillA1_action = 'attack';
+                        logMessage(`[이중 행동] 공격을 시전합니다. 첫 번째 대상을 선택하세요.`);
+                        setupTargeting('skill1', { targetTeam: 'enemy' });
+                    }},
+                    { text: "방어 (아군 2명)", handler: () => {
+                        currentAction = 'skill1';
+                        skillA1_action = 'defend';
+                        logMessage(`[이중 행동] 방어를 시전합니다. 첫 번째 대상을 선택하세요.`);
+                        setupTargeting('skill1', { targetTeam: 'ally' });
+                    }}
+                ]
+            );
+        }
+
+        function handleSkill_A1_Target(attacker, target) {
+            const actorTeam = attacker.id.startsWith('A') ? 'A' : 'B';
+            
+            if (!skillA1_firstTarget) {
+                skillA1_firstTarget = target;
+                logMessage(`첫 번째 대상(${target.name}) 선택. 두 번째 대상을 선택하세요.`);
+                
+                if (skillA1_action === 'attack') {
+                    setupTargeting('skill1', { targetTeam: 'enemy', excludeId: target.id });
+                } else {
+                    setupTargeting('skill1', { targetTeam: 'ally', excludeId: target.id });
+                }
+                
+            } else {
+                const target1 = skillA1_firstTarget;
+                const target2 = target;
+                const roll = roll3d10();
+
+                if (skillA1_action === 'attack') {
+                    logMessage(`[이중 행동] ${target1.name}, ${target2.name}에게 동일한 굴림(${roll})으로 공격합니다.`, actorTeam);
+                    registerAttack(attacker, target1, 'skill_A1', roll);
+                    registerAttack(attacker, target2, 'skill_A1', roll);
+                } else {
+                    logMessage(`[이중 행동] ${target1.name}, ${target2.name}에게 동일한 굴림(${roll})으로 방어합니다.`, actorTeam);
+                    target1.defendRoll = roll;
+                    target2.defendRoll = roll;
+                }
+                
+                finishAction(true);
+            }
+        }
+
+        function handleSkill_A2() {
+            const actor = getCurrentActor();
+            skillA2_reflector = actor;
+            logMessage(`${actor.name}(이)가 [반사 방패]를 준비합니다. 반사할 대상을 선택하세요.`, actor.id.startsWith('A') ? 'A' : 'B');
+            setupTargeting('skill2', { targetTeam: 'enemy' });
+        }
+
+        function handleSkill_A2_Target(attacker, target) {
+            const reflector = skillA2_reflector;
+            if (!reflector) {
+                finishAction(true);
+                return;
+            }
+            
+            reflector.isReflecting = true;
+            reflector.effects.push({ type: 'skill_A2_target', targetId: target.id });
+            logMessage(`${reflector.name}(이)가 [반사 방패]를 시전! ${target.name}을(를) 반사 대상으로 지정합니다.`, reflector.id.startsWith('A') ? 'A' : 'B');
+            updateCharacterUI(reflector);
+            finishAction(true);
+        }
+
+        function handleSkill_A3() {
+            logMessage(`${getCurrentActor().name}(이)가 [기절 공격]을 준비합니다. 대상을 선택하세요.`, getCurrentActor().id.startsWith('A') ? 'A' : 'B');
+            setupTargeting('skill3', { targetTeam: 'enemy' });
+        }
+
+        function handleSkill_A3_Target(attacker, defender) {
+            logMessage(`${attacker.name}(이)가 ${defender.name}에게 [기절 공격]을 시전합니다!`, attacker.id.startsWith('A') ? 'A' : 'B');
+            defender.stunDuration = 2;
+            logMessage(`${defender.name}을(를) 다음 턴 행동 불능 상태로 만듭니다.`, 'info');
+            updateCharacterUI(defender);
+            finishAction(true);
+        }
+
+        // === B 클래스 스킬 ===
+        function handleSkill_B1() {
+            const rolls = [roll3d10(), roll3d10(), roll3d10()];
+            const maxRoll = Math.max(...rolls);
+            
+            showModal(
+                "B-1: 최고치 선택",
+                `굴림 값: [${rolls.join(', ')}] / 최고값: ${maxRoll}. 행동을 선택하세요.`,
+                [
+                    { text: "공격 (적)", handler: () => {
+                        currentAction = 'skill1';
+                        skillB1_action = 'attack';
+                        skillB1_roll = maxRoll;
+                        logMessage(`[최고치 선택] 공격(${maxRoll})을 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill1', { targetTeam: 'enemy' });
+                    }},
+                    { text: "방어 (아군)", handler: () => {
+                        currentAction = 'skill1';
+                        skillB1_action = 'defend';
+                        skillB1_roll = maxRoll;
+                        logMessage(`[최고치 선택] 방어(${maxRoll})를 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill1', { targetTeam: 'ally' });
+                    }}
+                ]
+            );
+        }
+
+        function handleSkill_B1_Target(attacker, target) {
+            if (skillB1_action === 'attack') {
+                registerAttack(attacker, target, 'normal', skillB1_roll);
+            } else if (skillB1_action === 'defend') {
+                target.defendRoll = skillB1_roll;
+                logMessage(`${attacker.name}(이)가 ${target.name}에게 [최고치 선택] 방어(${skillB1_roll})를 시전합니다.`, attacker.id.startsWith('A') ? 'A' : 'B');
+            }
+            finishAction(true);
+        }
+
+        function handleSkill_B2() {
+            const roll = roll3d10();
+            const doubledRoll = roll * 2;
+            
+            showModal(
+                "B-2: 2배 강화",
+                `기본 굴림: ${roll} / 강화 값: ${doubledRoll}. 행동을 선택하세요.`,
+                [
+                    { text: "공격 (적)", handler: () => {
+                        currentAction = 'skill2';
+                        skillB2_action = 'attack';
+                        skillB2_roll = doubledRoll;
+                        logMessage(`[2배 강화] 공격(${doubledRoll})을 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill2', { targetTeam: 'enemy' });
+                    }},
+                    { text: "방어 (아군)", handler: () => {
+                        currentAction = 'skill2';
+                        skillB2_action = 'defend';
+                        skillB2_roll = doubledRoll;
+                        logMessage(`[2배 강화] 방어(${doubledRoll})를 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill2', { targetTeam: 'ally' });
+                    }}
+                ]
+            );
+        }
+
+        function handleSkill_B2_Target(attacker, target) {
+            if (skillB2_action === 'attack') {
+                registerAttack(attacker, target, 'normal', skillB2_roll);
+            } else if (skillB2_action === 'defend') {
+                target.defendRoll = skillB2_roll;
+                logMessage(`${attacker.name}(이)가 ${target.name}에게 [2배 강화] 방어(${skillB2_roll})를 시전합니다.`, attacker.id.startsWith('A') ? 'A' : 'B');
+            }
+            finishAction(true);
+        }
+
+        function handleSkill_B3() {
+            logMessage(`${getCurrentActor().name}(이)가 [흡혈 공격]을 준비합니다. 대상을 선택하세요.`, getCurrentActor().id.startsWith('A') ? 'A' : 'B');
+            setupTargeting('skill3', { targetTeam: 'enemy' });
+        }
+
+        function handleSkill_B3_Target(attacker, defender) {
+            registerAttack(attacker, defender, 'skill_B3');
+            finishAction(true);
+        }
+
+        // === C 클래스 스킬 ===
+        function handleSkill_C1() {
+            logMessage(`${getCurrentActor().name}(이)가 [관통 공격]을 준비합니다. 대상을 선택하세요.`, getCurrentActor().id.startsWith('A') ? 'A' : 'B');
+            setupTargeting('skill1', { targetTeam: 'enemy' });
+        }
+
+        function handleSkill_C1_Target(attacker, defender) {
+            const roll = roll3d10() + 20;
+            registerAttack(attacker, defender, 'skill_C1', roll);
+            finishAction(true);
+        }
+
+        function handleSkill_C2() {
+            logMessage(`${getCurrentActor().name}(이)가 [체력 동결]을 준비합니다. 아군 대상을 선택하세요.`, getCurrentActor().id.startsWith('A') ? 'A' : 'B');
+            setupTargeting('skill2', { targetTeam: 'ally' });
+        }
+
+        function handleSkill_C2_Target(attacker, target) {
+            target.isFrozen = true;
+            logMessage(`${attacker.name}(이)가 ${target.name}의 체력을 1턴간 동결시킵니다!`, attacker.id.startsWith('A') ? 'A' : 'B');
+            updateCharacterUI(target);
+            finishAction(true);
+        }
+
+        function handleSkill_C3() {
+            const fixedRoll = 45;
+            showModal(
+                "C-3: 45 고정",
+                `굴림 값을 45로 고정합니다. 행동을 선택하세요.`,
+                [
+                    { text: "공격 (적)", handler: () => {
+                        currentAction = 'skill3';
+                        skillC3_action = 'attack';
+                        skillC3_roll = fixedRoll;
+                        logMessage(`[45 고정] 공격(45)을 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill3', { targetTeam: 'enemy' });
+                    }},
+                    { text: "방어 (아군)", handler: () => {
+                        currentAction = 'skill3';
+                        skillC3_action = 'defend';
+                        skillC3_roll = fixedRoll;
+                        logMessage(`[45 고정] 방어(45)를 준비합니다. 대상을 선택하세요.`);
+                        setupTargeting('skill3', { targetTeam: 'ally' });
+                    }}
+                ]
+            );
+        }
+
+        function handleSkill_C3_Target(attacker, target) {
+            if (skillC3_action === 'attack') {
+                registerAttack(attacker, target, 'normal', skillC3_roll);
+            } else if (skillC3_action === 'defend') {
+                target.defendRoll = skillC3_roll;
+                logMessage(`${attacker.name}(이)가 ${target.name}에게 [45 고정] 방어(${skillC3_roll})를 시전합니다.`, attacker.id.startsWith('A') ? 'A' : 'B');
+            }
+            finishAction(true);
+        }
+    </script>
+</body>
+</html>
