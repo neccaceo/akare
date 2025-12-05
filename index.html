@@ -645,10 +645,10 @@
         <div id="gameContainer" class="hidden">
             <div id="characterSetupPanel">
                 <div id="teamASetup">
-                    <h2>불사조의 기사단 설정</h2>
+                    <h2>A팀 설정</h2>
                 </div>
                 <div id="teamBSetup">
-                    <h2>죽음을 먹는자 설정</h2>
+                    <h2>B팀 설정</h2>
                 </div>
             </div>
 
@@ -706,7 +706,7 @@
     <script>
         // === 게임 데이터 ===
         const teamRoster = {
-            "불사조의 기사단": [
+            "A팀": [
                 { name: "41", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "시그문드 오웬 케이플즈", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "니콜라스 볼트", class: "B", skill1: true, skill2: true, skill3: true },
@@ -724,7 +724,7 @@
 { name: "펠릭스 트루디", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "에크하르트 키스멧 플로이드", class: "A", skill1: true, skill2: true, skill3: true },
             ],
-            "죽음을 먹는자": [
+            "B팀": [
                 { name: "너베이아 밀러 그린우드", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "노아 에레즈 알피어스 ", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "레드레이크 토드 오토악", class: "C", skill1: true, skill2: true, skill3: true },
@@ -740,9 +740,48 @@
 { name: "엘로웬 모턴", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "제이드 케인", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "타테우스 룩수스 페스틸란스", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "녹스", class: "C", skill1: true, skill2: true, skill3: true }
+{ name: "녹스", class: "C", skill1: true, skill2: true, skill3: true },
             ]
         };
+
+        // === 이름 설정 (여기서 수정하면 전체 반영됨) ===
+        function getClassName(classCode) {
+            const classNames = {
+                'A': '문두스',
+                'B': '후무스',
+                'C': '오르쿠스'
+            };
+            return classNames[classCode] || classCode;
+        }
+
+        function getTeamName(teamCode) {
+            const teamNames = {
+                'A': '불사조의 기사단',
+                'B': '죽음을 먹는자'
+            };
+            return teamNames[teamCode] || teamCode;
+        }
+
+        function getSkillName(classCode, skillNumber) {
+            const skillNames = {
+                'A': {
+                    1: '아스가르드의 축복',
+                    2: '바나헤임의 축복',
+                    3: '알브헤임의 축복'
+                },
+                'B': {
+                    1: '미드가르드의 축복',
+                    2: '요툰헤임의 축복',
+                    3: '스바르트알파헤임의 축복'
+                },
+                'C': {
+                    1: '무스펠헤임의 축복',
+                    2: '니플헤임의 축복',
+                    3: '헬의 축복'
+                }
+            };
+            return skillNames[classCode]?.[skillNumber] || `스킬${skillNumber}`;
+        }
 
         const MAX_HP = 200;
         const MAX_ROUNDS = 5;
@@ -750,6 +789,8 @@
         let isDeathmatchMode = false;
         let teamA = [];
         let teamB = [];
+        let teamAName = getTeamName('A');
+        let teamBName = getTeamName('B');
         let isTeamATurn = true;
         let isTeamAFirst = true;
         let currentActorIndex = 0;
@@ -860,15 +901,6 @@
         });
 
         // === 유틸리티 함수 ===
-        function getClassName(classCode) {
-            const classNames = {
-                'A': '문두스',
-                'B': '후무스',
-                'C': '오르쿠스'
-            };
-            return classNames[classCode] || classCode;
-        }
-
         function roll3d10() {
             return Math.floor(Math.random() * 10) + 1 +
                    Math.floor(Math.random() * 10) + 1 +
@@ -905,48 +937,52 @@
 
         // === 게임 초기화 ===
         function initializeGame() {
+            // 팀 이름 재초기화
+            teamAName = getTeamName('A');
+            teamBName = getTeamName('B');
+            
             teamA = [];
             teamB = [];
             const errorMessages = [];
             const selectedCharacters = new Set();
 
             for (let i = 0; i < battleScale; i++) {
-                // 불사조의 기사단 캐릭터 설정
+                // A팀 캐릭터 설정
                 const selectA = document.getElementById(`A-char-select-${i}`);
                 const hpA = document.getElementById(`A-char-hp-${i}`);
                 const rosterIndexA = parseInt(selectA.value);
                 const startHpA = parseInt(hpA.value);
 
                 if (isNaN(rosterIndexA)) {
-                    errorMessages.push(`❌ 불사조의 기사단의 ${i+1}번째 캐릭터를 선택하세요.`);
+                    errorMessages.push(`❌ ${teamAName}의 ${i+1}번째 캐릭터를 선택하세요.`);
                     continue;
                 }
                 if (selectedCharacters.has(`A-${rosterIndexA}`)) {
-                    errorMessages.push(`❌ 불사조의 기사단의 ${teamRoster["불사조의 기사단"][rosterIndexA].name}(이)가 중복 선택되었습니다.`);
+                    errorMessages.push(`❌ ${teamAName}의 ${teamRoster["A팀"][rosterIndexA].name}(이)가 중복 선택되었습니다.`);
                     continue;
                 }
                 selectedCharacters.add(`A-${rosterIndexA}`);
                 
-                const rosterEntryA = teamRoster["불사조의 기사단"][rosterIndexA];
+                const rosterEntryA = teamRoster["A팀"][rosterIndexA];
                 teamA.push(createCharacter(rosterEntryA.name, rosterEntryA.class, `A-${i}`, startHpA));
 
-                // 죽음을 먹는자 캐릭터 설정
+                // B팀 캐릭터 설정
                 const selectB = document.getElementById(`B-char-select-${i}`);
                 const hpB = document.getElementById(`B-char-hp-${i}`);
                 const rosterIndexB = parseInt(selectB.value);
                 const startHpB = parseInt(hpB.value);
 
                 if (isNaN(rosterIndexB)) {
-                    errorMessages.push(`❌ 죽음을 먹는자의 ${i+1}번째 캐릭터를 선택하세요.`);
+                    errorMessages.push(`❌ ${teamBName}의 ${i+1}번째 캐릭터를 선택하세요.`);
                     continue;
                 }
                 if (selectedCharacters.has(`B-${rosterIndexB}`)) {
-                    errorMessages.push(`❌ 죽음을 먹는자의 ${teamRoster["죽음을 먹는자"][rosterIndexB].name}(이)가 중복 선택되었습니다.`);
+                    errorMessages.push(`❌ ${teamBName}의 ${teamRoster["B팀"][rosterIndexB].name}(이)가 중복 선택되었습니다.`);
                     continue;
                 }
                 selectedCharacters.add(`B-${rosterIndexB}`);
 
-                const rosterEntryB = teamRoster["죽음을 먹는자"][rosterIndexB];
+                const rosterEntryB = teamRoster["B팀"][rosterIndexB];
                 teamB.push(createCharacter(rosterEntryB.name, rosterEntryB.class, `B-${i}`, startHpB));
             }
 
@@ -985,7 +1021,8 @@
             } else {
                 logMessage("일반 모드: 5턴 후 종료됩니다.", 'system');
             }
-            logMessage(`1턴을 시작합니다. ${isTeamAFirst ? '불사조의 기사단' : '죽음을 먹는자'}이 선공입니다.`, 'system');
+            const firstTeamName = isTeamAFirst ? teamAName : teamBName;
+            logMessage(`1턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
             
             startRound();
             startTurn();
@@ -1015,6 +1052,7 @@
                 lastAttackTarget: null,
                 lastAttackType: null,
                 lastAttackIndex: -1,
+                doubleActionTargets: [], // 이중 행동 대상 저장
             };
         }
 
@@ -1031,6 +1069,7 @@
                 c.lastAttackTarget = null;
                 c.lastAttackType = null;
                 c.lastAttackIndex = -1;
+                c.doubleActionTargets = [];
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
                     if (c.stunDuration === 1) {
@@ -1050,6 +1089,7 @@
                 c.lastAttackTarget = null;
                 c.lastAttackType = null;
                 c.lastAttackIndex = -1;
+                c.doubleActionTargets = [];
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
                     if (c.stunDuration === 1) {
@@ -1098,8 +1138,8 @@
 
             if (isFirstTeamDone) {
                 // 선공팀 턴 종료 - 후공팀으로 전환
-                const nextTeam = isTeamATurn ? 'B' : 'A';
-                logMessage(`${nextTeam}팀의 차례입니다.`, 'system');
+                const nextTeamName = isTeamATurn ? teamBName : teamAName;
+                logMessage(`${formatName(nextTeamName, '의')} 차례입니다.`, 'system');
                 
                 isTeamATurn = !isTeamATurn;
                 currentActorIndex = 0;
@@ -1130,7 +1170,8 @@
                 currentActorIndex = 0;
 
                 logMessage("--- 새 턴 시작 ---", 'system');
-                logMessage(`${currentTurn}턴을 시작합니다. ${isTeamAFirst ? '불사조의 기사단' : '죽음을 먹는자'}이 선공입니다.`, 'system');
+                const firstTeamName = isTeamAFirst ? teamAName : teamBName;
+                logMessage(`${currentTurn}턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
                 
                 startRound();
                 startTurn();
@@ -1146,9 +1187,9 @@
                     return;
                 }
 
-                // 바나헤임의 축복 체크 (피해를 받지 않음)
+                // 반사 방패 체크 (피해를 받지 않음)
                 if (char.isReflecting) {
-                    logMessage(`${formatName(char.name, '은는')} [바나헤임의 축복] 상태라 피해를 입지 않습니다.`, 'info');
+                    logMessage(`${formatName(char.name, '은는')} [반사 방패] 상태라 피해를 입지 않습니다.`, 'info');
                     
                     // 받을 피해를 반사 대상에게 전달
                     const reflectEffect = char.effects.find(e => e.type === 'skill_A2_target');
@@ -1163,7 +1204,7 @@
                                     type: 'skill_A2_reflect',
                                     attackerId: char.id 
                                 });
-                                logMessage(`[바나헤임의 축복] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
+                                logMessage(`[반사 방패] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
                             }
                         });
                     }
@@ -1173,7 +1214,7 @@
                 }
 
                 if (char.isFrozen) {
-                    logMessage(`${formatName(char.name, '은는')} [니플헤임의 축복] 상태라 피해를 입지 않습니다.`, 'info');
+                    logMessage(`${formatName(char.name, '은는')} [체력 동결] 상태라 피해를 입지 않습니다.`, 'info');
                     return;
                 }
 
@@ -1188,7 +1229,7 @@
                     let logSuffix = "";
 
                     if (attack.type === 'skill_C1') {
-                        // 무스펠헤임의 축복 - 방어 무시
+                        // 관통 공격 - 방어 무시
                         damage = attack.roll;
                         logSuffix = `[관통] (방어 무시)`;
                     } else if (remainingDefendRoll > 0) {
@@ -1207,13 +1248,13 @@
                         totalDamageTaken += damage;
                         logMessage(`정산: ${formatName(char.name, '이가')} [공격 ${attack.roll}] 를 ${logSuffix} -> ${damage}의 피해!`, 'damage');
                         
-                        // 스바르트알파헤임의 축복 처리
+                        // 흡혈 공격 처리
                         if (attack.type === 'skill_B3' && attack.attackerId) {
                             const attacker = findCharacterById(attack.attackerId);
                             if (attacker && !attacker.isDead) {
                                 const healAmount = Math.floor(damage * 1.5);
                                 attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + healAmount);
-                                logMessage(`[스바르트알파헤임의 축복] ${formatName(attacker.name, '이가')} ${healAmount}만큼 HP를 회복합니다!`, 'heal');
+                                logMessage(`[흡혈 공격] ${formatName(attacker.name, '이가')} ${healAmount}만큼 HP를 회복합니다!`, 'heal');
                                 updateCharacterUI(attacker);
                             }
                         }
@@ -1264,8 +1305,8 @@
                 const bTeamHP = teamB.reduce((sum, c) => sum + (c.isDead || c.isEscaped ? 0 : c.currentHp), 0);
                 
                 logMessage("=== 5턴 종료 ===", 'system');
-                logMessage(`불사조의 기사단 총 HP: ${aTeamHP}`, 'teamA');
-                logMessage(`죽음을 먹는자 총 HP: ${bTeamHP}`, 'teamB');
+                logMessage(`${teamAName} 총 HP: ${aTeamHP}`, 'teamA');
+                logMessage(`${teamBName} 총 HP: ${bTeamHP}`, 'teamB');
                 logMessage("전투가 종료되었습니다.", 'system');
             } else {
                 // 전투 불능으로 승패 결정
@@ -1278,12 +1319,12 @@
                     logMessage("무승부!", 'system');
                 } else if (bDead) {
                     title = "🏁 전투 종료!";
-                    message = "죽음을 먹는자이 모두 전투 불능 상태입니다.\n\n🎉 불사조의 기사단 승리!";
-                    logMessage("불사조의 기사단 승리!", 'system');
+                    message = `${formatName(teamBName, '이가')} 모두 전투 불능 상태입니다.\n\n🎉 ${teamAName} 승리!`;
+                    logMessage(`${teamAName} 승리!`, 'system');
                 } else if (aDead) {
                     title = "🏁 전투 종료!";
-                    message = "불사조의 기사단이 모두 전투 불능 상태입니다.\n\n🎉 죽음을 먹는자 승리!";
-                    logMessage("죽음을 먹는자 승리!", 'system');
+                    message = `${formatName(teamAName, '이가')} 모두 전투 불능 상태입니다.\n\n🎉 ${teamBName} 승리!`;
+                    logMessage(`${teamBName} 승리!`, 'system');
                 }
                 
                 if (isDeathmatchMode) {
@@ -1303,7 +1344,7 @@
             
             // 스킬 사용 여부 로그
             logMessage("=== 스킬 사용 현황 ===", 'system');
-            logMessage("--- 불사조의 기사단 ---", 'teamA');
+            logMessage(`--- ${teamAName} ---`, 'teamA');
             teamA.forEach(char => {
                 const skills = [];
                 if (!char.skill1Available) skills.push("스킬1✓");
@@ -1312,7 +1353,7 @@
                 const skillText = skills.length > 0 ? `[${skills.join(', ')}]` : "[사용하지 않음]";
                 logMessage(`${char.name}: ${skillText}`, 'teamA');
             });
-            logMessage("--- 죽음을 먹는자 ---", 'teamB');
+            logMessage(`--- ${teamBName} ---`, 'teamB');
             teamB.forEach(char => {
                 const skills = [];
                 if (!char.skill1Available) skills.push("스킬1✓");
@@ -1366,7 +1407,7 @@
                     let roll;
                     let rollInfo = '';
                     
-                    // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+                    // 최고치 선택 버프가 있으면 3번 굴려서 최대값
                     if (attacker.hasMaxRollBuff) {
                         const rolls = [roll3d10(), roll3d10(), roll3d10()];
                         roll = Math.max(...rolls);
@@ -1397,7 +1438,7 @@
             let skillPrefix = '';
             let detailInfo = '';
             
-            // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+            // 최고치 선택 버프가 있으면 3번 굴려서 최대값
             if (attacker.hasMaxRollBuff && fixedRoll === null) {
                 const rolls = [roll3d10(), roll3d10(), roll3d10()];
                 roll = Math.max(...rolls);
@@ -1411,15 +1452,15 @@
                 skillPrefix = '흡혈 ';
             }
             
-            // 요툰헤임의 축복 체크
+            // 2배 강화 체크
             if (fixedRoll !== null && fixedRoll === skillB2_roll && skillB2_action === 'attack' && originalRoll !== null) {
                 skillPrefix = '2배 ';
                 detailInfo = ` (${originalRoll})`;
             }
             
-            // 헬의 축복 체크
+            // 45 고정 체크
             if (fixedRoll === 45 && skillC3_action === 'attack') {
-                skillPrefix = '헬의 축복 ';
+                skillPrefix = '45 고정 ';
             }
             
             let logMsg = `[${skillPrefix}공격 ${roll}]${detailInfo}${rollInfo}`;
@@ -1443,7 +1484,7 @@
             let roll;
             let rollInfo = '';
             
-            // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+            // 최고치 선택 버프가 있으면 3번 굴려서 최대값
             if (actor.hasMaxRollBuff) {
                 const rolls = [roll3d10(), roll3d10(), roll3d10()];
                 roll = Math.max(...rolls);
@@ -1507,8 +1548,8 @@
 
             const teamASetup = document.getElementById('teamASetup');
             const teamBSetup = document.getElementById('teamBSetup');
-            teamASetup.innerHTML = '<h2>불사조의 기사단 설정</h2>';
-            teamBSetup.innerHTML = '<h2>죽음을 먹는자 설정</h2>';
+            teamASetup.innerHTML = '<h2>A팀 설정</h2>';
+            teamBSetup.innerHTML = '<h2>B팀 설정</h2>';
 
             for (let i = 0; i < scale; i++) {
                 teamASetup.appendChild(createCharacterSelectGroup(i, 'A'));
@@ -1520,7 +1561,7 @@
             const div = document.createElement('div');
             div.className = 'character-select-group';
             
-            const roster = (team === 'A') ? teamRoster["불사조의 기사단"] : teamRoster["죽음을 먹는자"];
+            const roster = (team === 'A') ? teamRoster["A팀"] : teamRoster["B팀"];
             
             let options = '<option value="" disabled selected>캐릭터 선택</option>';
             roster.forEach((char, i) => {
@@ -1615,13 +1656,6 @@
             const panel = document.getElementById('actionPanel');
             const buttons = panel.querySelectorAll('button[data-action]');
             const cancelBtn = document.getElementById('cancelActionButton');
-            
-            // 스킬 이름 정의
-            const skillNames = {
-                'A': ['아스가르드의 축복', '바나헤임의 축복', '알브헤임의 축복'],
-                'B': ['미드가르드의 축복', '요툰헤임의 축복', '스바르트알파헤임의 축복'],
-                'C': ['무스펠헤임의 축복', '니플헤임의 축복', '헬의 축복']
-            };
 
             // 스킬 설명 정의
             const skillTooltips = {
@@ -1631,7 +1665,7 @@
                     '대상을 다음 턴에 행동 불가능하게\n만듭니다.'
                 ],
                 'B': [
-                    '팀 버프: 아군 전체가 이번 턴에\n3번 굴려서 최고값 사용.\n이미 행동한 아군도 재굴림 가능!',
+                    '팀 버프: 아군 전체가 이번 턴에\n3번 굴려서 최고값 사용.\n이미 행동한 아군도 재굴림!\n공격/방어/도주 선택 가능.',
                     '주사위 굴림값의 2배를 공격이나\n방어에 사용합니다.',
                     '입힌 피해의 1.5배를 HP로\n회복합니다.'
                 ],
@@ -1654,13 +1688,13 @@
                             btn.classList.remove('class-A', 'class-B', 'class-C');
                             if (charClass) {
                                 btn.classList.add(`class-${charClass}`);
-                                const skillIndex = parseInt(action.replace('skill', '')) - 1;
-                                btn.textContent = skillNames[charClass][skillIndex];
-                                btn.dataset.tooltip = skillTooltips[charClass][skillIndex];
+                                const skillNumber = parseInt(action.replace('skill', ''));
+                                btn.textContent = getSkillName(charClass, skillNumber);
+                                btn.dataset.tooltip = skillTooltips[charClass][skillNumber - 1];
                                 
                                 // 스킬 사용 여부 확인
                                 if (character) {
-                                    const skillKey = `skill${skillIndex + 1}Available`;
+                                    const skillKey = `skill${skillNumber}Available`;
                                     btn.disabled = !character[skillKey];
                                 } else {
                                     btn.disabled = false;
@@ -1773,6 +1807,8 @@
             currentActorIndex = 0;
             currentTurn = 1;
             isDeathmatchMode = false;
+            teamAName = getTeamName('A');
+            teamBName = getTeamName('B');
             document.getElementById('deathmatchMode').checked = false;
             document.getElementById('battleLog').innerHTML = '';
             document.getElementById('teamAContainer').innerHTML = '';
@@ -1848,8 +1884,8 @@
             battleLog += `모드: ${isDeathmatchMode ? '데스매치' : '일반 (5턴 제한)'}\n`;
             battleLog += `현재 턴: ${currentTurn}\n\n`;
             
-            // 불사조의 기사단 정보
-            battleLog += '[불사조의 기사단]\n';
+            // A팀 정보
+            battleLog += `[${teamAName}]\n`;
             teamA.forEach(char => {
                 battleLog += `- ${char.name} (${getClassName(char.class)})`;
                 if (char.isDead) {
@@ -1863,8 +1899,8 @@
             });
             battleLog += '\n';
             
-            // 죽음을 먹는자 정보
-            battleLog += '[죽음을 먹는자]\n';
+            // B팀 정보
+            battleLog += `[${teamBName}]\n`;
             teamB.forEach(char => {
                 battleLog += `- ${char.name} (${getClassName(char.class)})`;
                 if (char.isDead) {
@@ -1911,15 +1947,15 @@
             battleLog += `전투 규모: ${battleScale}v${battleScale}\n`;
             battleLog += `모드: ${isDeathmatchMode ? '데스매치' : '일반 (5턴 제한)'}\n\n`;
             
-            // 불사조의 기사단 정보
-            battleLog += '[불사조의 기사단]\n';
+            // A팀 정보
+            battleLog += `[${teamAName}]\n`;
             teamA.forEach(char => {
                 battleLog += `- ${char.name} (${getClassName(char.class)})\n`;
             });
             battleLog += '\n';
             
-            // 죽음을 먹는자 정보
-            battleLog += '[죽음을 먹는자]\n';
+            // B팀 정보
+            battleLog += `[${teamBName}]\n`;
             teamB.forEach(char => {
                 battleLog += `- ${char.name} (${getClassName(char.class)})\n`;
             });
@@ -1951,13 +1987,13 @@
 
         function triggerTestError() {
             if (!isTeamATurn && !isTeamAFirst) {
-                logMessage('⚠️ [테스트] 오류 시뮬레이션: 첫 번째 아스가르드의 축복 대상 무효화', 'info');
-                // 아스가르드의 축복 중이라면 첫 번째 대상 무효화
+                logMessage('⚠️ [테스트] 오류 시뮬레이션: 첫 번째 이중 행동 대상 무효화', 'info');
+                // 이중 행동 중이라면 첫 번째 대상 무효화
                 if (skillA1_firstTarget) {
                     skillA1_firstTarget.isDead = true;
                     logMessage(`⚠️ [테스트] ${skillA1_firstTarget.name}이(가) 강제로 전투 불능 처리됨`, 'info');
                 } else {
-                    logMessage('⚠️ [테스트] 현재 아스가르드의 축복 중이 아닙니다.', 'info');
+                    logMessage('⚠️ [테스트] 현재 이중 행동 중이 아닙니다.', 'info');
                 }
             } else {
                 // 현재 액터를 강제로 무효화
@@ -1999,7 +2035,7 @@
                 logMessage(`⚠️ 첫 번째 대상에서 오류 발생! 다시 시도합니다.`, 'info');
                 showTargetSelectionPanel(true);
             } else {
-                logMessage(`⚠️ 두 번째 대상에서 오류 발생! [아스가르드의 축복] 스킬 실패`, 'info');
+                logMessage(`⚠️ 두 번째 대상에서 오류 발생! [이중 행동] 스킬 실패`, 'info');
                 skillA1_firstTarget = null;
                 skillA1_action = null;
                 toggleActionButtons(true, actor.class, actor);
@@ -2042,7 +2078,7 @@
             
             // 공격 대상이 2명 미만이거나 아군이 2명 미만이면 사용 불가
             if (enemyTargets.length < 2 && allyTargets.length < 2) {
-                logMessage(`[아스가르드의 축복]을 사용할 수 있는 대상이 부족합니다.`, 'info');
+                logMessage(`[이중 행동]을 사용할 수 있는 대상이 부족합니다.`, 'info');
                 toggleActionButtons(true, actor.class, actor);
                 return;
             }
@@ -2066,13 +2102,13 @@
             }
             
             if (buttons.length === 0) {
-                logMessage(`[아스가르드의 축복]을 사용할 수 있는 대상이 부족합니다.`, 'info');
+                logMessage(`[이중 행동]을 사용할 수 있는 대상이 부족합니다.`, 'info');
                 toggleActionButtons(true, actor.class);
                 return;
             }
             
             showModal(
-                "A-1: 아스가르드의 축복",
+                "A-1: 이중 행동",
                 "공격(적 2명) 또는 방어(아군 2명)를 선택하세요.",
                 buttons
             );
@@ -2134,7 +2170,7 @@
                 let roll;
                 let rollInfo = '';
                 
-                // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+                // 최고치 선택 버프가 있으면 3번 굴려서 최대값
                 if (attacker.hasMaxRollBuff) {
                     const rolls = [roll3d10(), roll3d10(), roll3d10()];
                     roll = Math.max(...rolls);
@@ -2145,12 +2181,38 @@
 
                 if (skillA1_action === 'attack') {
                     logMessage(`${attacker.name} [이중 공격 ${roll}]${rollInfo}`, actorTeam);
-                    registerAttack(attacker, target1, 'skill_A1', roll);
-                    registerAttack(attacker, target2, 'skill_A1', roll);
+                    
+                    // 첫 번째 공격
+                    const index1 = target1.attackRollsReceived.length;
+                    target1.attackRollsReceived.push({ 
+                        roll: roll, 
+                        type: 'skill_A1', 
+                        attackerId: attacker.id 
+                    });
+                    
+                    // 두 번째 공격
+                    const index2 = target2.attackRollsReceived.length;
+                    target2.attackRollsReceived.push({ 
+                        roll: roll, 
+                        type: 'skill_A1', 
+                        attackerId: attacker.id 
+                    });
+                    
+                    // 이중 행동 정보 저장
+                    attacker.doubleActionTargets = [
+                        { target: target1, index: index1 },
+                        { target: target2, index: index2 }
+                    ];
                 } else {
                     logMessage(`${attacker.name} [이중 방어 ${roll}]${rollInfo}`, actorTeam);
                     target1.defendRoll = roll;
                     target2.defendRoll = roll;
+                    
+                    // 이중 방어 정보 저장
+                    attacker.doubleActionTargets = [
+                        { target: target1, isDefend: true },
+                        { target: target2, isDefend: true }
+                    ];
                 }
                 
                 attacker.skill1Available = false;
@@ -2175,7 +2237,7 @@
             
             reflector.isReflecting = true;
             reflector.effects.push({ type: 'skill_A2_target', targetId: target.id });
-            logMessage(`${reflector.name} [바나헤임의 축복]`, reflector.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${reflector.name} [반사 방패]`, reflector.id.startsWith('A') ? 'A' : 'B');
             reflector.skill2Available = false;
             updateCharacterUI(reflector);
             finishAction(true);
@@ -2186,7 +2248,7 @@
         }
 
         function handleSkill_A3_Target(attacker, defender) {
-            logMessage(`${attacker.name} [알브헤임의 축복]`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [기절 공격]`, attacker.id.startsWith('A') ? 'A' : 'B');
             defender.stunDuration = 3; // 3: 현재 턴 행동 가능, 2: 다음 턴 행동 불가, 1: 기절 해제 예정
             logMessage(`${formatName(defender.name, '은는')} 다음 턴에 행동할 수 없게 됩니다.`, 'info');
             attacker.skill3Available = false;
@@ -2199,14 +2261,17 @@
             const actor = getCurrentActor();
             
             showModal(
-                "B-1: 미드가르드의 축복",
-                "공격 또는 방어를 선택하세요.\n아군 전체가 이번 턴에 3번 굴려서 최고값을 사용합니다.",
+                "B-1: 최고치 선택",
+                "공격, 방어, 또는 도주를 선택하세요.\n아군 전체가 이번 턴에 3번 굴려서 최고값을 사용합니다.",
                 [
                     { text: "공격 (적)", handler: () => {
                         applyMaxRollBuff(actor, 'attack');
                     }},
                     { text: "방어 (아군)", handler: () => {
                         applyMaxRollBuff(actor, 'defend');
+                    }},
+                    { text: "도주", handler: () => {
+                        applyMaxRollBuff(actor, 'dodge');
                     }}
                 ]
             );
@@ -2214,7 +2279,8 @@
 
         function applyMaxRollBuff(actor, actionType) {
             const actorTeam = actor.id.startsWith('A') ? teamA : teamB;
-            const teamName = actor.id.startsWith('A') ? 'A' : 'B';
+            const teamNameForLog = actor.id.startsWith('A') ? teamAName : teamBName;
+            const teamType = actor.id.startsWith('A') ? 'A' : 'B';
             
             // 팀 전체에 버프 적용
             actorTeam.forEach(c => {
@@ -2223,30 +2289,91 @@
                 }
             });
             
-            logMessage(`${actor.name} [미드가르드의 축복] ${teamName}팀 전체 3번 굴림 버프`, teamName);
+            logMessage(`${actor.name} [최고치 선택] ${teamNameForLog} 전체 3번 굴림 버프`, teamType);
             
             // 이미 행동한 팀원들 재굴림
             actorTeam.forEach(c => {
                 if (c.id === actor.id || c.isDead || c.isEscaped) return;
                 if (!c.hasActedThisTurn) return;
                 
-                // 방어를 한 경우
+                // 이중 행동 재굴림 (A-1 스킬)
+                if (c.doubleActionTargets && c.doubleActionTargets.length > 0) {
+                    const firstTarget = c.doubleActionTargets[0];
+                    
+                    if (firstTarget.isDefend) {
+                        // 이중 방어
+                        const oldRoll = firstTarget.target.defendRoll;
+                        const rolls = [oldRoll, roll3d10(), roll3d10()];
+                        const maxRoll = Math.max(...rolls);
+                        
+                        // 두 대상 모두 같은 값으로 업데이트
+                        c.doubleActionTargets.forEach(dt => {
+                            if (dt.target && !dt.target.isDead) {
+                                dt.target.defendRoll = maxRoll;
+                            }
+                        });
+                        
+                        logMessage(`${c.name} [이중방어 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                    } else {
+                        // 이중 공격
+                        const firstAttack = firstTarget.target.attackRollsReceived[firstTarget.index];
+                        if (firstAttack) {
+                            const oldRoll = firstAttack.roll;
+                            const rolls = [oldRoll, roll3d10(), roll3d10()];
+                            const maxRoll = Math.max(...rolls);
+                            
+                            // 두 공격 모두 같은 값으로 업데이트
+                            c.doubleActionTargets.forEach(dt => {
+                                if (dt.target && dt.target.attackRollsReceived[dt.index]) {
+                                    dt.target.attackRollsReceived[dt.index].roll = maxRoll;
+                                }
+                            });
+                            
+                            logMessage(`${c.name} [이중공격 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                        }
+                    }
+                    return; // 이중 행동은 여기서 처리 완료
+                }
+                
+                // 일반 방어
                 if (c.defendRoll > 0) {
                     const rolls = [c.defendRoll, roll3d10(), roll3d10()];
                     const maxRoll = Math.max(...rolls);
                     c.defendRoll = maxRoll;
-                    logMessage(`└ ${c.name} [방어 재굴림: ${rolls.join(', ')} → ${maxRoll}]`, 'info');
+                    logMessage(`${c.name} [방어 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
                 }
                 
-                // 공격을 한 경우
+                // 일반 공격
                 if (c.lastAttackTarget && c.lastAttackIndex >= 0) {
                     const target = c.lastAttackTarget;
                     if (target.attackRollsReceived[c.lastAttackIndex]) {
-                        const oldRoll = target.attackRollsReceived[c.lastAttackIndex].roll;
-                        const rolls = [oldRoll, roll3d10(), roll3d10()];
-                        const maxRoll = Math.max(...rolls);
-                        target.attackRollsReceived[c.lastAttackIndex].roll = maxRoll;
-                        logMessage(`└ ${c.name} [공격 재굴림: ${rolls.join(', ')} → ${maxRoll}]`, 'info');
+                        const attackData = target.attackRollsReceived[c.lastAttackIndex];
+                        
+                        // 관통 공격인 경우 특별 처리
+                        if (attackData.type === 'skill_C1' && attackData.baseRoll !== undefined) {
+                            const oldBaseRoll = attackData.baseRoll;
+                            const rolls = [oldBaseRoll, roll3d10(), roll3d10()];
+                            const maxBaseRoll = Math.max(...rolls);
+                            const newRoll = maxBaseRoll + 20;
+                            
+                            attackData.roll = newRoll;
+                            attackData.baseRoll = maxBaseRoll;
+                            logMessage(`${c.name} [관통공격 ${newRoll}] (${maxBaseRoll}+20) (굴림: ${rolls.join(', ')})`, 'info');
+                        } else {
+                            // 일반 공격
+                            const oldRoll = attackData.roll;
+                            const rolls = [oldRoll, roll3d10(), roll3d10()];
+                            const maxRoll = Math.max(...rolls);
+                            attackData.roll = maxRoll;
+                            
+                            // 스킬 타입에 따른 표시
+                            let skillName = '공격';
+                            if (attackData.type === 'skill_B3') {
+                                skillName = '흡혈공격';
+                            }
+                            
+                            logMessage(`${c.name} [${skillName} ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                        }
                     }
                 }
             });
@@ -2256,9 +2383,12 @@
             if (actionType === 'attack') {
                 currentAction = 'attack';
                 setupTargeting('attack', { targetTeam: 'enemy' });
-            } else {
+            } else if (actionType === 'defend') {
                 currentAction = 'defend';
                 setupTargeting('defend', { targetTeam: 'ally' });
+            } else if (actionType === 'dodge') {
+                currentAction = 'dodge';
+                performDodge(actor, teamType);
             }
         }
 
@@ -2267,12 +2397,24 @@
         }
 
         function handleSkill_B2() {
-            const roll = roll3d10();
+            const actor = getCurrentActor();
+            let roll;
+            let rollInfo = '';
+            
+            // 최고치 선택 버프가 있으면 3번 굴려서 최대값
+            if (actor.hasMaxRollBuff) {
+                const rolls = [roll3d10(), roll3d10(), roll3d10()];
+                roll = Math.max(...rolls);
+                rollInfo = ` (굴림: ${rolls.join(', ')})`;
+            } else {
+                roll = roll3d10();
+            }
+            
             const doubledRoll = roll * 2;
             
             showModal(
-                "B-2: 요툰헤임의 축복",
-                `기본 굴림: ${roll} / 강화 값: ${doubledRoll}. 행동을 선택하세요.`,
+                "B-2: 2배 강화",
+                `기본 굴림: ${roll}${rollInfo} / 강화 값: ${doubledRoll}. 행동을 선택하세요.`,
                 [
                     { text: "공격 (적)", handler: () => {
                         currentAction = 'skill2';
@@ -2311,7 +2453,7 @@
             let roll;
             let rollInfo = '';
             
-            // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+            // 최고치 선택 버프가 있으면 3번 굴려서 최대값
             if (attacker.hasMaxRollBuff) {
                 const rolls = [roll3d10(), roll3d10(), roll3d10()];
                 roll = Math.max(...rolls);
@@ -2331,7 +2473,7 @@
             attacker.lastAttackType = 'skill_B3';
             attacker.lastAttackIndex = defender.attackRollsReceived.length - 1;
             
-            logMessage(`${attacker.name} [스바르트알파헤임의 축복 ${roll}]${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [흡혈 공격 ${roll}]${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill3Available = false;
             finishAction(true);
         }
@@ -2345,7 +2487,7 @@
             let baseRoll;
             let rollInfo = '';
             
-            // 미드가르드의 축복 버프가 있으면 3번 굴려서 최대값
+            // 최고치 선택 버프가 있으면 3번 굴려서 최대값
             if (attacker.hasMaxRollBuff) {
                 const rolls = [roll3d10(), roll3d10(), roll3d10()];
                 baseRoll = Math.max(...rolls);
@@ -2356,13 +2498,20 @@
             
             const roll = baseRoll + 20;
             
+            const attackIndex = defender.attackRollsReceived.length;
             defender.attackRollsReceived.push({ 
                 roll: roll, 
                 type: 'skill_C1', 
-                attackerId: attacker.id 
+                attackerId: attacker.id,
+                baseRoll: baseRoll  // 기본 굴림값 저장 (재굴림용)
             });
             
-            logMessage(`${attacker.name} [무스펠헤임의 축복 ${roll}] (${baseRoll}+20)${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
+            // 공격 정보 저장 (재굴림을 위해 필요)
+            attacker.lastAttackTarget = defender;
+            attacker.lastAttackType = 'skill_C1';
+            attacker.lastAttackIndex = attackIndex;
+            
+            logMessage(`${attacker.name} [관통 공격 ${roll}] (${baseRoll}+20)${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill1Available = false;
             finishAction(true);
         }
@@ -2373,7 +2522,7 @@
 
         function handleSkill_C2_Target(attacker, target) {
             target.isFrozen = true;
-            logMessage(`${attacker.name} [니플헤임의 축복]`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [체력 동결]`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill2Available = false;
             updateCharacterUI(target);
             finishAction(true);
@@ -2382,7 +2531,7 @@
         function handleSkill_C3() {
             const fixedRoll = 45;
             showModal(
-                "C-3: 헬의 축복",
+                "C-3: 45 고정",
                 `굴림 값을 45로 고정합니다. 행동을 선택하세요.`,
                 [
                     { text: "공격 (적)", handler: () => {
@@ -2406,7 +2555,7 @@
                 registerAttack(attacker, target, 'normal', skillC3_roll);
             } else if (skillC3_action === 'defend') {
                 target.defendRoll = skillC3_roll;
-                logMessage(`${attacker.name} [헬의 축복 방어 ${skillC3_roll}]`, attacker.id.startsWith('A') ? 'A' : 'B');
+                logMessage(`${attacker.name} [45 고정 방어 ${skillC3_roll}]`, attacker.id.startsWith('A') ? 'A' : 'B');
             }
             attacker.skill3Available = false;
             finishAction(true);
