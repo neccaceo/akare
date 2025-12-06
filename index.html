@@ -1460,10 +1460,10 @@
             
             // 45 고정 체크
             if (fixedRoll === 45 && skillC3_action === 'attack') {
-                skillPrefix = '45 고정 ';
+                skillPrefix = '헬의 축복';
             }
             
-            let logMsg = `[헬의 축복 공격 ${roll}]${detailInfo}${rollInfo}`;
+            let logMsg = `[공격 ${roll}]${detailInfo}${rollInfo}`;
 
             const attackIndex = defender.attackRollsReceived.length;
             defender.attackRollsReceived.push({ 
