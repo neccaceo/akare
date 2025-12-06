@@ -1189,7 +1189,7 @@
 
                 // 반사 방패 체크 (피해를 받지 않음)
                 if (char.isReflecting) {
-                    logMessage(`${formatName(char.name, '은는')} [반사 방패] 상태라 피해를 입지 않습니다.`, 'info');
+                    logMessage(`${formatName(char.name, '은는')} [바나헤임의 축복] 상태라 피해를 입지 않습니다.`, 'info');
                     
                     // 받을 피해를 반사 대상에게 전달
                     const reflectEffect = char.effects.find(e => e.type === 'skill_A2_target');
@@ -1204,7 +1204,7 @@
                                     type: 'skill_A2_reflect',
                                     attackerId: char.id 
                                 });
-                                logMessage(`[반사 방패] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
+                                logMessage(`[바나헤임의 축복] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
                             }
                         });
                     }
@@ -1214,7 +1214,7 @@
                 }
 
                 if (char.isFrozen) {
-                    logMessage(`${formatName(char.name, '은는')} [체력 동결] 상태라 피해를 입지 않습니다.`, 'info');
+                    logMessage(`${formatName(char.name, '은는')} [니플헤임의 축복] 상태라 피해를 입지 않습니다.`, 'info');
                     return;
                 }
 
@@ -1231,7 +1231,7 @@
                     if (attack.type === 'skill_C1') {
                         // 관통 공격 - 방어 무시
                         damage = attack.roll;
-                        logSuffix = `[관통] (방어 무시)`;
+                        logSuffix = `[무스펠하임의 축복] (방어 무시)`;
                     } else if (remainingDefendRoll > 0) {
                         // 방어 적용
                         const blocked = Math.min(remainingDefendRoll, attack.roll);
@@ -1254,7 +1254,7 @@
                             if (attacker && !attacker.isDead) {
                                 const healAmount = Math.floor(damage * 1.5);
                                 attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + healAmount);
-                                logMessage(`[흡혈 공격] ${formatName(attacker.name, '이가')} ${healAmount}만큼 HP를 회복합니다!`, 'heal');
+                                logMessage(`[스바르트알파헤임의 축복] ${formatName(attacker.name, '이가')} ${healAmount}만큼 HP를 회복합니다!`, 'heal');
                                 updateCharacterUI(attacker);
                             }
                         }
@@ -2102,7 +2102,7 @@
             }
             
             if (buttons.length === 0) {
-                logMessage(`[이중 행동]을 사용할 수 있는 대상이 부족합니다.`, 'info');
+                logMessage(`[아스가르드의 축복]을 사용할 수 있는 대상이 부족합니다.`, 'info');
                 toggleActionButtons(true, actor.class);
                 return;
             }
@@ -2180,7 +2180,7 @@
                 }
 
                 if (skillA1_action === 'attack') {
-                    logMessage(`${attacker.name} [이중 공격 ${roll}]${rollInfo}`, actorTeam);
+                    logMessage(`${attacker.name} [바나헤임의 축복 ${roll}]${rollInfo}`, actorTeam);
                     
                     // 첫 번째 공격
                     const index1 = target1.attackRollsReceived.length;
@@ -2237,7 +2237,7 @@
             
             reflector.isReflecting = true;
             reflector.effects.push({ type: 'skill_A2_target', targetId: target.id });
-            logMessage(`${reflector.name} [반사 방패]`, reflector.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${reflector.name} [바나헤임의 축복]`, reflector.id.startsWith('A') ? 'A' : 'B');
             reflector.skill2Available = false;
             updateCharacterUI(reflector);
             finishAction(true);
@@ -2248,7 +2248,7 @@
         }
 
         function handleSkill_A3_Target(attacker, defender) {
-            logMessage(`${attacker.name} [기절 공격]`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [알브헤임의 축복]`, attacker.id.startsWith('A') ? 'A' : 'B');
             defender.stunDuration = 3; // 3: 현재 턴 행동 가능, 2: 다음 턴 행동 불가, 1: 기절 해제 예정
             logMessage(`${formatName(defender.name, '은는')} 다음 턴에 행동할 수 없게 됩니다.`, 'info');
             attacker.skill3Available = false;
@@ -2289,7 +2289,7 @@
                 }
             });
             
-            logMessage(`${actor.name} [최고치 선택] ${teamNameForLog} 전체 3번 굴림 버프`, teamType);
+            logMessage(`${actor.name} [미드가르드의 축복] ${teamNameForLog} 전체 3번 굴림 버프`, teamType);
             
             // 이미 행동한 팀원들 재굴림
             actorTeam.forEach(c => {
@@ -2329,7 +2329,7 @@
                                 }
                             });
                             
-                            logMessage(`${c.name} [이중공격 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                            logMessage(`${c.name} [아스가르드의 축복 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
                         }
                     }
                     return; // 이중 행동은 여기서 처리 완료
@@ -2358,7 +2358,7 @@
                             
                             attackData.roll = newRoll;
                             attackData.baseRoll = maxBaseRoll;
-                            logMessage(`${c.name} [관통공격 ${newRoll}] (${maxBaseRoll}+20) (굴림: ${rolls.join(', ')})`, 'info');
+                            logMessage(`${c.name} [ ${newRoll}] (${maxBaseRoll}+20) (굴림: ${rolls.join(', ')})`, 'info');
                         } else {
                             // 일반 공격
                             const oldRoll = attackData.roll;
@@ -2369,7 +2369,7 @@
                             // 스킬 타입에 따른 표시
                             let skillName = '공격';
                             if (attackData.type === 'skill_B3') {
-                                skillName = '흡혈공격';
+                                skillName = '스바르트알파헤임의 축복';
                             }
                             
                             logMessage(`${c.name} [${skillName} ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
@@ -2439,7 +2439,7 @@
                 registerAttack(attacker, target, 'normal', skillB2_roll, skillB2_originalRoll);
             } else if (skillB2_action === 'defend') {
                 target.defendRoll = skillB2_roll;
-                logMessage(`${attacker.name} [2배 방어 ${skillB2_roll}] (${skillB2_originalRoll})`, attacker.id.startsWith('A') ? 'A' : 'B');
+                logMessage(`${attacker.name} [요툰헤임의 축복 ${skillB2_roll}] (${skillB2_originalRoll})`, attacker.id.startsWith('A') ? 'A' : 'B');
             }
             attacker.skill2Available = false;
             finishAction(true);
@@ -2473,7 +2473,7 @@
             attacker.lastAttackType = 'skill_B3';
             attacker.lastAttackIndex = defender.attackRollsReceived.length - 1;
             
-            logMessage(`${attacker.name} [흡혈 공격 ${roll}]${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [스바르트알파헤임의 축복 ${roll}]${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill3Available = false;
             finishAction(true);
         }
@@ -2511,7 +2511,7 @@
             attacker.lastAttackType = 'skill_C1';
             attacker.lastAttackIndex = attackIndex;
             
-            logMessage(`${attacker.name} [관통 공격 ${roll}] (${baseRoll}+20)${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [무스펠하임의 축복 ${roll}] (${baseRoll}+20)${rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill1Available = false;
             finishAction(true);
         }
@@ -2522,7 +2522,7 @@
 
         function handleSkill_C2_Target(attacker, target) {
             target.isFrozen = true;
-            logMessage(`${attacker.name} [체력 동결]`, attacker.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${attacker.name} [니플헤임의 축복]`, attacker.id.startsWith('A') ? 'A' : 'B');
             attacker.skill2Available = false;
             updateCharacterUI(target);
             finishAction(true);
@@ -2555,7 +2555,7 @@
                 registerAttack(attacker, target, 'normal', skillC3_roll);
             } else if (skillC3_action === 'defend') {
                 target.defendRoll = skillC3_roll;
-                logMessage(`${attacker.name} [45 고정 방어 ${skillC3_roll}]`, attacker.id.startsWith('A') ? 'A' : 'B');
+                logMessage(`${attacker.name} [헬의 축복 ${skillC3_roll}]`, attacker.id.startsWith('A') ? 'A' : 'B');
             }
             attacker.skill3Available = false;
             finishAction(true);
