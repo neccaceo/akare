@@ -2237,7 +2237,7 @@
             
             reflector.isReflecting = true;
             reflector.effects.push({ type: 'skill_A2_target', targetId: target.id });
-            logMessage(`${reflector.name} [바나헤임의 축복]`, reflector.id.startsWith('A') ? 'A' : 'B');
+            logMessage(`${reflector.name} [바나헤임의 축복] ${formatName(target.name, '에게')} 반사`, reflector.id.startsWith('A') ? 'A' : 'B');
             reflector.skill2Available = false;
             updateCharacterUI(reflector);
             finishAction(true);
