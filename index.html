@@ -704,8 +704,7 @@
     </div>
 
     <script>
-        // === 게임 데이터 ===
-        // === 게임 데이터 ===
+             // === 게임 데이터 ===
         const teamRoster = {
             "A팀": [
                 { name: "41", class: "A", skill1: true, skill2: true, skill3: true },
@@ -965,7 +964,11 @@
                 selectedCharacters.add(`A-${rosterIndexA}`);
                 
                 const rosterEntryA = teamRoster["A팀"][rosterIndexA];
-                teamA.push(createCharacter(rosterEntryA.name, rosterEntryA.class, `A-${i}`, startHpA));
+                teamA.push(createCharacter(rosterEntryA.name, rosterEntryA.class, `A-${i}`, startHpA, {
+                    skill1: rosterEntryA.skill1,
+                    skill2: rosterEntryA.skill2,
+                    skill3: rosterEntryA.skill3
+                }));
 
                 // B팀 캐릭터 설정
                 const selectB = document.getElementById(`B-char-select-${i}`);
@@ -984,7 +987,11 @@
                 selectedCharacters.add(`B-${rosterIndexB}`);
 
                 const rosterEntryB = teamRoster["B팀"][rosterIndexB];
-                teamB.push(createCharacter(rosterEntryB.name, rosterEntryB.class, `B-${i}`, startHpB));
+                teamB.push(createCharacter(rosterEntryB.name, rosterEntryB.class, `B-${i}`, startHpB, {
+                    skill1: rosterEntryB.skill1,
+                    skill2: rosterEntryB.skill2,
+                    skill3: rosterEntryB.skill3
+                }));
             }
 
             if (errorMessages.length > 0) {
@@ -1029,7 +1036,7 @@
             startTurn();
         }
 
-        function createCharacter(name, charClass, id, startHp) {
+        function createCharacter(name, charClass, id, startHp, skillConfig = {}) {
             const hp = Math.max(1, Math.min(startHp, MAX_HP));
             return {
                 id: id,
@@ -1045,9 +1052,9 @@
                 isReflecting: false,
                 isFrozen: false,
                 stunDuration: 0,
-                skill1Available: true,
-                skill2Available: true,
-                skill3Available: true,
+                skill1Available: skillConfig.skill1 !== undefined ? skillConfig.skill1 : true,
+                skill2Available: skillConfig.skill2 !== undefined ? skillConfig.skill2 : true,
+                skill3Available: skillConfig.skill3 !== undefined ? skillConfig.skill3 : true,
                 hasMaxRollBuff: false,
                 hasActedThisTurn: false,
                 lastAttackTarget: null,
