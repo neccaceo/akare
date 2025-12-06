@@ -1022,7 +1022,7 @@
                 logMessage("일반 모드: 5턴 후 종료됩니다.", 'system');
             }
             const firstTeamName = isTeamAFirst ? teamAName : teamBName;
-            logMessage(`1턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
+            logMessage(`1턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다. 4분 내로 선언해주시기 바랍니다.`, 'system');
             
             startRound();
             startTurn();
@@ -1139,7 +1139,7 @@
             if (isFirstTeamDone) {
                 // 선공팀 턴 종료 - 후공팀으로 전환
                 const nextTeamName = isTeamATurn ? teamBName : teamAName;
-                logMessage(`${formatName(nextTeamName, '의')} 차례입니다.`, 'system');
+                logMessage(`${formatName(nextTeamName, '의')} 차례입니다.  4분 내로 선언해주시기 바랍니다.`, 'system');
                 
                 isTeamATurn = !isTeamATurn;
                 currentActorIndex = 0;
@@ -1171,7 +1171,7 @@
 
                 logMessage("--- 새 턴 시작 ---", 'system');
                 const firstTeamName = isTeamAFirst ? teamAName : teamBName;
-                logMessage(`${currentTurn}턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
+                logMessage(`${currentTurn}턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.  4분 내로 선언해주시기 바랍니다.`, 'system');
                 
                 startRound();
                 startTurn();
