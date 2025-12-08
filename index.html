@@ -704,7 +704,7 @@
     </div>
 
     <script>
-             // === 게임 데이터 ===
+         // === 게임 데이터 ===
         const teamRoster = {
             "A팀": [
                 { name: "41", class: "A", skill1: true, skill2: true, skill3: true },
@@ -1212,17 +1212,53 @@
                     if (reflectEffect) {
                         const reflectTarget = findCharacterById(reflectEffect.targetId);
                         
-                        char.attackRollsReceived.forEach(attack => {
-                            const reflectDamage = attack.roll;  // 전체 피해 반사
-                            if (reflectTarget && !reflectTarget.isDead && reflectDamage > 0) {
-                                reflectTarget.attackRollsReceived.push({ 
-                                    roll: reflectDamage, 
-                                    type: 'skill_A2_reflect',
-                                    attackerId: char.id 
-                                });
-                                logMessage(`[반사 방패] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectDamage}의 피해를 반사!`, 'info');
+                        if (reflectTarget && !reflectTarget.isDead) {
+                            // 반사 피해 계산 (1/3, 내림)
+                            let totalReflectDamage = 0;
+                            char.attackRollsReceived.forEach(attack => {
+                                const reflectRoll = Math.floor(attack.roll / 3);
+                                if (reflectRoll > 0) {
+                                    totalReflectDamage += reflectRoll;
+                                    logMessage(`[반사 방패] ${formatName(char.name, '이가')} ${formatName(reflectTarget.name, '에게')} ${reflectRoll}의 피해를 반사!`, 'info');
+                                }
+                            });
+                            
+                            // 반사 피해를 반사 대상의 방어로 계산
+                            if (totalReflectDamage > 0) {
+                                const targetTotalDefend = reflectTarget.defendRolls.reduce((sum, d) => sum + d.roll, 0);
+                                let actualDamage = totalReflectDamage;
+                                let logSuffix = "";
+                                
+                                if (targetTotalDefend > 0) {
+                                    const blocked = Math.min(targetTotalDefend, totalReflectDamage);
+                                    actualDamage = totalReflectDamage - blocked;
+                                    logSuffix = `방어 [${targetTotalDefend}] 으로 [${blocked}] 막음! -> `;
+                                    
+                                    // 방어를 소모시킴
+                                    let remainingBlock = blocked;
+                                    for (let i = 0; i < reflectTarget.defendRolls.length && remainingBlock > 0; i++) {
+                                        const consume = Math.min(reflectTarget.defendRolls[i].roll, remainingBlock);
+                                        reflectTarget.defendRolls[i].roll -= consume;
+                                        remainingBlock -= consume;
+                                    }
+                                } else {
+                                    logSuffix = "방어 없음! -> ";
+                                }
+                                
+                                if (actualDamage > 0) {
+                                    reflectTarget.currentHp = Math.max(0, reflectTarget.currentHp - actualDamage);
+                                    logMessage(`정산: ${formatName(reflectTarget.name, '이가')} [반사 피해 ${totalReflectDamage}] 를 ${logSuffix}${actualDamage}의 피해!`, 'damage');
+                                    
+                                    if (reflectTarget.currentHp === 0 && !reflectTarget.isDead) {
+                                        reflectTarget.isDead = true;
+                                        logMessage(`${formatName(reflectTarget.name, '이가')} 사망했습니다!`, 'death');
+                                    }
+                                    updateCharacterUI(reflectTarget);
+                                } else {
+                                    logMessage(`정산: ${formatName(reflectTarget.name, '이가')} [반사 피해 ${totalReflectDamage}] 를 ${logSuffix}0의 피해!`, 'damage');
+                                }
                             }
-                        });
+                        }
                     }
                     
                     char.attackRollsReceived = [];
@@ -1677,7 +1713,7 @@
             const skillTooltips = {
                 'A': [
                     '같은 굴림값으로 적 2명에게 공격하거나\n아군 2명에게 방어를 시전합니다.',
-                    '선택한 적이 가하는 피해를 모두\n그 적에게 되돌려줍니다.',
+                    '선택한 적이 가하는 피해의 1/3을\n그 적에게 되돌려줍니다.\n반사 피해는 방어로 막을 수 있습니다.',
                     '대상을 다음 턴에 행동 불가능하게\n만듭니다.'
                 ],
                 'B': [
