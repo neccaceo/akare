@@ -708,7 +708,7 @@
         const teamRoster = {
             "A팀": [
                 { name: "41", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "시그문드 오웬 케이플즈", class: "A", skill1: true, skill2: true, skill3: true },
+{ name: "시그문드 오웬 케이플즈", class: "A", skill1: true, skill2: true, skill3: false },
 { name: "니콜라스 볼트", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "루카스 폰 아웃포스트", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "미겔 모랄레스 로드리게즈", class: "C", skill1: true, skill2: true, skill3: false },
@@ -716,19 +716,19 @@
 { name: "시에라 밴더미어", class: "C", skill1: false, skill2: true, skill3: false },
 { name: "아난케 에이와스 리드맨", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "아샤 플레먼스", class: "A", skill1: false, skill2: false, skill3: false },
-{ name: "아이라 하이델베르크", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "아이라 하이델베르크", class: "C", skill1: false, skill2: false, skill3: false },
 { name: "에이 만", class: "B", skill1: false, skill2: false, skill3: false },
 { name: "에크하르트 키스멧 플로이드", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "주세페 셔우드", class: "C", skill1: true, skill2: true, skill3: true },
 { name: "준 르클레어", class: "A", skill1: false, skill2: true, skill3: false },
-{ name: "펠릭스 트루디", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "펠릭스 트루디", class: "B", skill1: false, skill2: false, skill3: false },
 { name: "프레이야 밀러", class: "C", skill1: true, skill2: true, skill3: false },
             ],
             "B팀": [
 { name: "섀넌 콕스", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "엘로웬 모턴", class: "A", skill1: true, skill2: true, skill3: true },
-                { name: "너베이아 밀러 그린우드", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "노아 에레즈 알피어스 ", class: "B", skill1: true, skill2: true, skill3: true },
+                { name: "너베이아 밀러 그린우드", class: "A", skill1: false, skill2: false, skill3: false },
+{ name: "노아 에레즈 알피어스 ", class: "B", skill1: false, skill2: true, skill3: true },
 { name: "레드레이크 토드 오토악", class: "C", skill1: false, skill2: false, skill3: false },
 { name: "리리에트 반즈", class: "B", skill1: true, skill2: false, skill3: true },
 { name: "모렌도 유스티인", class: "B", skill1: false, skill2: true, skill3: true },
@@ -736,7 +736,7 @@
 { name: "미카엘라 윈터 세이지", class: "C", skill1: false, skill2: false, skill3: false },
 { name: "아나스타샤 재커리 벨", class: "C", skill1: false, skill2: false, skill3: false },
 { name: "아르티미브 데트론 벨", class: "B", skill1: false, skill2: true, skill3: true },
-{ name: "아멜리아 레이젠", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "아멜리아 레이젠", class: "C", skill1: false, skill2: false, skill3: false },
 { name: "에이미 패터슨", class: "C", skill1: true, skill2: true, skill3: true },
 { name: "제이드 케인", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "타테우스 룩수스 페스틸란스", class: "A", skill1: true, skill2: true, skill3: true },
@@ -782,7 +782,6 @@
             };
             return skillNames[classCode]?.[skillNumber] || `스킬${skillNumber}`;
         }
-
         const MAX_HP = 200;
         const MAX_ROUNDS = 5;
         let battleScale = 2;
@@ -1030,7 +1029,7 @@
                 logMessage("일반 모드: 5턴 후 종료됩니다.", 'system');
             }
             const firstTeamName = isTeamAFirst ? teamAName : teamBName;
-            logMessage(`1턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다. 4분 내로 선언해주시기 바랍니다.`, 'system');
+            logMessage(`1턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
             
             startRound();
             startTurn();
@@ -1060,6 +1059,7 @@
                 lastAttackTarget: null,
                 lastAttackType: null,
                 lastAttackIndex: -1,
+                lastDodgeRoll: null,  // 도주 굴림값 저장
                 doubleActionTargets: [], // 이중 행동 대상 저장
             };
         }
@@ -1077,6 +1077,7 @@
                 c.lastAttackTarget = null;
                 c.lastAttackType = null;
                 c.lastAttackIndex = -1;
+                c.lastDodgeRoll = null;
                 c.doubleActionTargets = [];
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
@@ -1097,6 +1098,7 @@
                 c.lastAttackTarget = null;
                 c.lastAttackType = null;
                 c.lastAttackIndex = -1;
+                c.lastDodgeRoll = null;
                 c.doubleActionTargets = [];
                 if (c.stunDuration > 0 && !c.isDead) {
                     c.stunDuration--;
@@ -1147,7 +1149,7 @@
             if (isFirstTeamDone) {
                 // 선공팀 턴 종료 - 후공팀으로 전환
                 const nextTeamName = isTeamATurn ? teamBName : teamAName;
-                logMessage(`${formatName(nextTeamName, '의')} 차례입니다. 4분 내로 선언해주시기 바랍니다.`, 'system');
+                logMessage(`${formatName(nextTeamName, '의')} 차례입니다.`, 'system');
                 
                 isTeamATurn = !isTeamATurn;
                 currentActorIndex = 0;
@@ -1179,7 +1181,7 @@
 
                 logMessage("--- 새 턴 시작 ---", 'system');
                 const firstTeamName = isTeamAFirst ? teamAName : teamBName;
-                logMessage(`${currentTurn}턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다. 4분 내로 선언해주시기 바랍니다.`, 'system');
+                logMessage(`${currentTurn}턴을 시작합니다. ${formatName(firstTeamName, '이가')} 선공입니다.`, 'system');
                 
                 startRound();
                 startTurn();
@@ -1543,14 +1545,17 @@
                 rollInfo = ` (굴림: ${rolls.join(', ')})`;
             } else {
                 roll = roll3d10();
+                rollInfo = ` (굴림: ${roll})`;
             }
+            
+            actor.lastDodgeRoll = roll;  // 도주 굴림값 저장
             
             if (roll >= 22) {
                 actor.isEscaped = true;
-                logMessage(`${formatName(actor.name, '이가')} 도주합니다! (굴림: ${roll})${rollInfo}`, teamType);
+                logMessage(`${formatName(actor.name, '이가')} 도주합니다!${rollInfo}`, teamType);
                 updateCharacterUI(actor);
             } else {
-                logMessage(`${formatName(actor.name, '이가')} 도주에 실패했습니다. (굴림: ${roll})${rollInfo}`, teamType);
+                logMessage(`${formatName(actor.name, '이가')} 도주에 실패했습니다.${rollInfo}`, teamType);
             }
             finishAction(true);
         }
@@ -2345,8 +2350,33 @@
             
             // 이미 행동한 팀원들 재굴림
             actorTeam.forEach(c => {
-                if (c.id === actor.id || c.isDead || c.isEscaped) return;
+                if (c.id === actor.id || c.isDead) return;
                 if (!c.hasActedThisTurn) return;
+                
+                // 도주 재굴림
+                if (c.lastDodgeRoll !== null) {
+                    const oldRoll = c.lastDodgeRoll;
+                    const rolls = [oldRoll, roll3d10(), roll3d10()];
+                    const maxRoll = Math.max(...rolls);
+                    c.lastDodgeRoll = maxRoll;
+                    
+                    if (maxRoll >= 22 && !c.isEscaped) {
+                        // 재굴림으로 도주 성공
+                        c.isEscaped = true;
+                        logMessage(`${c.name} [도주 ${maxRoll}] (굴림: ${rolls.join(', ')}) - 재굴림으로 도주 성공!`, 'info');
+                        updateCharacterUI(c);
+                    } else if (maxRoll < 22 && c.isEscaped) {
+                        // 재굴림으로 도주 실패 (이미 성공했는데 재굴림으로 실패할 수 없음, 유지)
+                        logMessage(`${c.name} [도주 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                    } else if (maxRoll >= 22 && c.isEscaped) {
+                        // 이미 성공, 재굴림도 성공
+                        logMessage(`${c.name} [도주 ${maxRoll}] (굴림: ${rolls.join(', ')})`, 'info');
+                    } else {
+                        // 재굴림해도 실패
+                        logMessage(`${c.name} [도주 ${maxRoll}] (굴림: ${rolls.join(', ')}) - 재굴림해도 실패`, 'info');
+                    }
+                    return; // 도주는 여기서 처리 완료
+                }
                 
                 // 이중 행동 재굴림 (A-1 스킬)
                 if (c.doubleActionTargets && c.doubleActionTargets.length > 0) {
