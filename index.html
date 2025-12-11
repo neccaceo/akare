@@ -632,6 +632,7 @@
             <h1>턴제 전투 시뮬레이터</h1>
             <h2>전투 규모 선택</h2>
             <div id="battleScaleButtons">
+                <button data-scale="1">1 vs 1</button>
                 <button data-scale="2">2 vs 2</button>
                 <button data-scale="3">3 vs 3</button>
                 <button id="startBattleBtn">전투 시작</button>
@@ -708,39 +709,39 @@
         const teamRoster = {
             "A팀": [
                 { name: "41", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "시그문드 오웬 케이플즈", class: "A", skill1: true, skill2: true, skill3: false },
+{ name: "시그문드 오웬 케이플즈", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "니콜라스 볼트", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "루카스 폰 아웃포스트", class: "B", skill1: true, skill2: true, skill3: true },
-{ name: "미겔 모랄레스 로드리게즈", class: "C", skill1: true, skill2: true, skill3: false },
-{ name: "샤나넬 린 윈터베리", class: "C", skill1: false, skill2: false, skill3: false },
-{ name: "시에라 밴더미어", class: "C", skill1: false, skill2: true, skill3: false },
+{ name: "미겔 모랄레스 로드리게즈", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "샤나넬 린 윈터베리", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "시에라 밴더미어", class: "C", skill1: true, skill2: true, skill3: true },
 { name: "아난케 에이와스 리드맨", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "아샤 플레먼스", class: "A", skill1: false, skill2: false, skill3: false },
-{ name: "아이라 하이델베르크", class: "C", skill1: false, skill2: false, skill3: false },
-{ name: "에이 만", class: "B", skill1: false, skill2: false, skill3: false },
+{ name: "아샤 플레먼스", class: "A", skill1: true, skill2: true, skill3: true },
+{ name: "아이라 하이델베르크", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "에이 만", class: "B", skill1: true, skill2: true, skill3: true },
 { name: "에크하르트 키스멧 플로이드", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "주세페 셔우드", class: "C", skill1: true, skill2: true, skill3: true },
-{ name: "준 르클레어", class: "A", skill1: false, skill2: true, skill3: false },
-{ name: "펠릭스 트루디", class: "B", skill1: false, skill2: false, skill3: false },
-{ name: "프레이야 밀러", class: "C", skill1: true, skill2: true, skill3: false },
+{ name: "준 르클레어", class: "A", skill1: true, skill2: true, skill3: true },
+{ name: "펠릭스 트루디", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "프레이야 밀러", class: "C", skill1: true, skill2: true, skill3: true },
             ],
             "B팀": [
 { name: "섀넌 콕스", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "엘로웬 모턴", class: "A", skill1: true, skill2: true, skill3: true },
-                { name: "너베이아 밀러 그린우드", class: "A", skill1: false, skill2: false, skill3: false },
-{ name: "노아 에레즈 알피어스 ", class: "B", skill1: false, skill2: true, skill3: true },
-{ name: "레드레이크 토드 오토악", class: "C", skill1: false, skill2: false, skill3: false },
-{ name: "리리에트 반즈", class: "B", skill1: true, skill2: false, skill3: true },
-{ name: "모렌도 유스티인", class: "B", skill1: false, skill2: true, skill3: true },
-{ name: "모르가나 모리 블랙쏜", class: "A", skill1: false, skill2: true, skill3: true },
-{ name: "미카엘라 윈터 세이지", class: "C", skill1: false, skill2: false, skill3: false },
-{ name: "아나스타샤 재커리 벨", class: "C", skill1: false, skill2: false, skill3: false },
-{ name: "아르티미브 데트론 벨", class: "B", skill1: false, skill2: true, skill3: true },
-{ name: "아멜리아 레이젠", class: "C", skill1: false, skill2: false, skill3: false },
+                { name: "너베이아 밀러 그린우드", class: "A", skill1: true, skill2: true, skill3: true },
+{ name: "노아 에레즈 알피어스 ", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "레드레이크 토드 오토악", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "리리에트 반즈", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "모렌도 유스티인", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "모르가나 모리 블랙쏜", class: "A", skill1: true, skill2: true, skill3: true },
+{ name: "미카엘라 윈터 세이지", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "아나스타샤 재커리 벨", class: "C", skill1: true, skill2: true, skill3: true },
+{ name: "아르티미브 데트론 벨", class: "B", skill1: true, skill2: true, skill3: true },
+{ name: "아멜리아 레이젠", class: "C", skill1: true, skill2: true, skill3: true },
 { name: "에이미 패터슨", class: "C", skill1: true, skill2: true, skill3: true },
 { name: "제이드 케인", class: "A", skill1: true, skill2: true, skill3: true },
 { name: "타테우스 룩수스 페스틸란스", class: "A", skill1: true, skill2: true, skill3: true },
-{ name: "녹스", class: "C", skill1: false, skill2: true, skill3: false },
+{ name: "녹스", class: "C", skill1: true, skill2: true, skill3: true },
             ]
         };
 
@@ -803,6 +804,7 @@
         let skillB2_action = null;
         let skillB2_roll = 0;
         let skillB2_originalRoll = 0;
+        let skillB2_rollInfo = '';
         let skillC3_action = null;
         let skillC3_roll = 0;
 
@@ -821,7 +823,7 @@
                 if (document.getElementById('gameContainer').classList.contains('hidden')) {
                     showModal(
                         "⚠️ 규모를 먼저 선택하세요",
-                        "2vs2 또는 3vs3을 선택한 후 전투를 시작할 수 있습니다.",
+                        "1vs1, 2vs2 또는 3vs3을 선택한 후 전투를 시작할 수 있습니다.",
                         [{ text: "확인", handler: () => {} }]
                     );
                     return;
@@ -1503,18 +1505,21 @@
             
             // 스킬 타입에 따른 접두사
             if (type === 'skill_B3') {
-                skillPrefix = `[${getSkillName('B', 3)}] `;
+                skillPrefix = `[${getSkillName('B', 3)} `;
             }
             
             // 2배 강화 체크
             if (fixedRoll !== null && fixedRoll === skillB2_roll && skillB2_action === 'attack' && originalRoll !== null) {
-                skillPrefix = `[${getSkillName('B', 2)}] `;
+                skillPrefix = `[${getSkillName('B', 2)} `;
                 detailInfo = ` (${originalRoll})`;
+                if (skillB2_rollInfo) {
+                    rollInfo = skillB2_rollInfo;
+                }
             }
             
             // 45 고정 체크
             if (fixedRoll === 45 && skillC3_action === 'attack') {
-                skillPrefix = `[${getSkillName('C', 3)}] `;
+                skillPrefix = `[${getSkillName('C', 3)} `;
             }
             
             let logMsg = skillPrefix ? `${skillPrefix}${roll}]${detailInfo}${rollInfo}` : `[공격 ${roll}]${detailInfo}${rollInfo}`;
@@ -1579,6 +1584,7 @@
             skillB2_action = null;
             skillB2_roll = 0;
             skillB2_originalRoll = 0;
+            skillB2_rollInfo = '';
             skillC3_action = null;
             skillC3_roll = 0;
 
@@ -2508,6 +2514,9 @@
             
             const doubledRoll = roll * 2;
             
+            // rollInfo 저장
+            skillB2_rollInfo = rollInfo;
+            
             showModal(
                 "B-2: 2배 강화",
                 `기본 굴림: ${roll}${rollInfo} / 강화 값: ${doubledRoll}. 행동을 선택하세요.`,
@@ -2535,7 +2544,7 @@
                 registerAttack(attacker, target, 'normal', skillB2_roll, skillB2_originalRoll);
             } else if (skillB2_action === 'defend') {
                 target.defendRolls.push({ defenderId: attacker.id, roll: skillB2_roll });
-                logMessage(`${attacker.name} [${getSkillName('B', 2)} ${skillB2_roll}] (${skillB2_originalRoll})`, attacker.id.startsWith('A') ? 'A' : 'B');
+                logMessage(`${attacker.name} [${getSkillName('B', 2)} ${skillB2_roll}] (${skillB2_originalRoll})${skillB2_rollInfo}`, attacker.id.startsWith('A') ? 'A' : 'B');
             }
             attacker.skill2Available = false;
             finishAction(true);
